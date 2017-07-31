@@ -1,0 +1,7 @@
+# Ignore everything in this directory
+.idea/*
+
+__*
+.idea/
+# Except this file
+!.gitignore
