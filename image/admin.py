@@ -1,4 +1,9 @@
 from django.contrib import admin
 from .models import Image
 
-admin.site.register(Image)
+
+@admin.register(Image)
+class ImageAdmin(admin.ModelAdmin):
+    list_display = ['id', 'image_path', 'label_name', 'tags']
+
+# admin.site.register(Image)

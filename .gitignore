@@ -5,3 +5,4 @@ __*
 .idea/
 # Except this file
 !.gitignore
+image/migrations/0001_initial.py
