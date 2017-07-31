@@ -5,3 +5,7 @@ from django.http import HttpResponse
 def my_sum(request, x, y):
     #request: HttpRequest
     return HttpResponse(int(x) + int(y))
+
+def my_hello(request, name, age):
+    #request: HttpRequest
+    return HttpResponse('안녕하세요. {}. {}살 이시네요.'.format(name, age))
