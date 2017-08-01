@@ -18,6 +18,15 @@ def img_download(request):  # 특정 파일 response
         return response
 
 
-def post_image(request):
+def list_image(request):
     queryset = Image.objects.all()
-    return render(request, 'image/post_list.html', {'post_list': queryset, })
+
+    q = request.GET.get('q', '')
+    if q:
+        queryset = queryset.filter(image_path__icontains=q)
+    return render(request, 'image/post_list.html', {'post_list': queryset, 'q': q})
+
+
+def detail_image(request, id):
+    queryset = Image.objects.all().get(id=id)
+    return render(request, 'image/post_detail.html', {'img': queryset})

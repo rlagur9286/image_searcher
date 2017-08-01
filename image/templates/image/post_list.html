@@ -1,10 +1,16 @@
 {% extends "search/layout.html" %}
 {% block content %}
     <ul>
+    <form action="" method="get">
+        <input type="text" name="q" value="{{ q }}"/>
+        <input type="submit" value="검색"/>
+    </form>
     {% for img in post_list %}
     <li>
-        {{ img.label_name }}
-        {{ img.image_path }}
+        {{ img.id }}
+        <a href="{% url "detail_image" img.id %}">
+            {{ img.image_path }}
+        </a>
     </li>
 {#    <img src= "{{img}}">#}
     {% endfor %}

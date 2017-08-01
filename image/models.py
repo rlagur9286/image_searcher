@@ -17,3 +17,7 @@ class Image(models.Model):
 
     def __str__(self):
         return self.image_path
+
+    class Meta:
+        ordering = ['id']   # 오름차순
+        # ordering = ['-id']   # 내림차순
