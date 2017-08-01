@@ -1,0 +1,12 @@
+{% extends "search/layout.html" %}
+{% block content %}
+    <ul>
+    {% for img in post_list %}
+    <li>
+        {{ img.label_name }}
+        {{ img.image_path }}
+    </li>
+{#    <img src= "{{img}}">#}
+    {% endfor %}
+    </ul>
+{% endblock %}
