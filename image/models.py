@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.urlresolvers import reverse
 
 class Image(models.Model):
     STATUS_CHOICES = (
@@ -21,3 +21,6 @@ class Image(models.Model):
     class Meta:
         ordering = ['id']   # 오름차순
         # ordering = ['-id']   # 내림차순
+
+    def get_absolute_url(self):
+        return reverse('image:list_image', args=[self.id])

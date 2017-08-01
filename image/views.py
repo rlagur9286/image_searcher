@@ -24,9 +24,9 @@ def list_image(request):
     q = request.GET.get('q', '')
     if q:
         queryset = queryset.filter(image_path__icontains=q)
-    return render(request, 'image/post_list.html', {'post_list': queryset, 'q': q})
+    return render(request, 'image/list_image.html', {'post_list': queryset, 'q': q})
 
 
 def detail_image(request, id):
     queryset = Image.objects.all().get(id=id)
-    return render(request, 'image/post_detail.html', {'img': queryset})
+    return render(request, 'image/detail_image.html', {'image': queryset})

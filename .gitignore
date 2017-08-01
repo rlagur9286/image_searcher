@@ -1,6 +1,6 @@
 # Ignore everything in this directory
 .idea/*
-
+image/static/*
 __*
 .idea/
 # Except this file

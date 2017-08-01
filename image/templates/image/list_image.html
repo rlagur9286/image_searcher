@@ -1,0 +1,51 @@
+{% extends "search/layout.html" %}
+{% block content %}
+    <div class="container">
+        <div class="jumbotron">
+            <h1>IMAGE SEARCH ENGINE <sup>by KTh</sup></h1>
+            <p>여러분을 대신해서 찾아드리겠습니다.</p>
+            <p>
+                <a class="btn btn-lg btn-primary" href="https://www.kthcorp.com/index">
+                    KTh 더 알아보기 &raquo;
+                </a>
+            </p>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+            <div class="'alert alert-info">
+                <ul>
+                    <li>KTh 만의 보다 차별화된 서비스를 이용해보세요.</li>
+                    <li>누구나 손쉽게 나만의 Image Search Engine을 가질 수 있습니다.</li>
+                </ul>
+            </div>
+                <p>
+                <form action="" method="get">
+                    <input type="text" name="q" value="{{ q }}"/>
+                    <input type="submit" value="검색" class="btn btn-primary"/>
+                </form>
+                </p>
+                <table class="table table-hover table-bordered">
+                    <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>IMAGE</th>
+                        <th>LABEL</th>
+                        <th>UPLOAD TIME</th>
+                    </tr>
+
+                    </thead>
+                    <tbody>
+                    {% for img in post_list %}
+                        <tr>
+                            <td><a href="{% url "image:detail_image" img.id %}">{{ img.id }}</a></td>
+                            <td><img src="{{ img.image_path }}" width="100"></td>
+                            <td>{{ img.label_name }}</td>
+                            <td>{{ img.upload_time }}</td>
+                        </tr>
+                        {#    <img src= "{{img}}">#}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+{% endblock %}
