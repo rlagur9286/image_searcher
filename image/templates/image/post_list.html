@@ -8,7 +8,7 @@
     {% for img in post_list %}
     <li>
         {{ img.id }}
-        <a href="{% url "detail_image" img.id %}">
+        <a href="{% url "image:detail_image" img.id %}">
             {{ img.image_path }}
         </a>
     </li>

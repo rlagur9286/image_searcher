@@ -15,10 +15,17 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.shortcuts import redirect
+
+
+def root(request):
+    return redirect('image:list_image')
+
 
 urlpatterns = [
+    url(r'^$', root, name='root'),
     url(r'^admin/', admin.site.urls),
-    url(r'^search/', include('search.urls')),
-    url(r'^image/', include('image.urls')),
-    url(r'^account/', include('account.urls')),
+    url(r'^search/', include('search.urls', namespace='search')),
+    url(r'^image/', include('image.urls', namespace='image')),
+    url(r'^account/', include('account.urls', namespace='account')),
 ]
