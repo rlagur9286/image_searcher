@@ -1,0 +1,11 @@
+{% extends "blog/layout.html" %}
+
+{% block title %}
+    {{ post.title }}
+{% endblock %}
+
+{% block content %}
+   {{ post.title }}
+    <h1>{{ post.title }}</h1>
+    <h2>{{ post.content|linebreaks }}</h2>
+{% endblock %}

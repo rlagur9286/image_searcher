@@ -2,6 +2,7 @@ import os
 import datetime as dt
 import random
 from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from pytz import timezone
 from django.shortcuts import redirect
@@ -64,7 +65,7 @@ def list_label(request):
 
 
 def detail_label(request, id):
-    label = Label.objects.all().get(id=id)
+    label = get_object_or_404(Label, id=id)
     dir_path = 'image/static/images/%s' % label.id
     image_list = []
     for (path, dir, files) in os.walk(dir_path):
@@ -77,16 +78,3 @@ def detail_label(request, id):
 
 def display_prediction(request):
     return render(request, 'image/display_prediction.html')
-# def list_label(request):
-#     result_set = []
-#     queryset = Label.objects.all()
-#     for qs in queryset:
-#         tmp = dict()
-#         tmp['img'] = Image.objects.all().filter(label_name=qs.label_name)[0]
-#         tmp['label'] = qs.label_name
-#         tmp['des'] = qs.description
-#         result_set.append(tmp)
-    # q = request.GET.get('q', '')
-    # if q:
-    #     queryset = queryset.filter(image_path__icontains=q)
-    # return render(request, 'image/list_image.html', {'label_list': result_set, 'q': q})

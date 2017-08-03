@@ -26,4 +26,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^image/', include('image.urls', namespace='image')),
     url(r'^account/', include('account.urls', namespace='account')),
+    url(r'^blog/', include('blog.urls', namespace='blog')),
 ]
