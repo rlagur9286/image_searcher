@@ -1,14 +1,16 @@
+import os
+import datetime as dt
+import random
 from django.shortcuts import render
 from django.http import HttpResponse
-import os
 from pytz import timezone
-import datetime as dt
-from image_searcher import settings
-from image.models import Image
-from .forms import PostForm
-from .models import Label
 from django.shortcuts import redirect
-from django.views.generic import View
+
+from .forms import PostForm
+from image.models import Label
+
+EXTENSIONS = ['.jpg', '.jpeg', '.JPG', '.JPEG', 'jpg']
+
 
 def my_sum(request, x, y):
     return HttpResponse(int(x) + int(y))
@@ -17,17 +19,12 @@ def my_sum(request, x, y):
 def create_label(request):
     form = PostForm(request.POST)
     if request.method == "POST":
-        print('form : ', form)
-        print("here?1")
         if form.is_valid():
-            print("here?")
             post = form.save(commit=False)
             post.author = request.user
             post.published_date = dt.datetime.now(timezone('Asia/Seoul'))
             post.save()
             return redirect('root')
-
-    print("Rmx")
     return render(request, 'image/list_label.html', {'form': form})
 
 
@@ -35,29 +32,41 @@ def list_label(request):
     result_set = []
     queryset = Label.objects.all()
     for qs in queryset:
-        try:
-            image_queryset = Image.objects.filter(label=qs)[0]
-        except:
+        dir_path = 'image/static/images/%s' % qs.id
+        image_list = []
+        for (path, dir, files) in os.walk(dir_path):
+            for filename in files:
+                ext = os.path.splitext(filename)[-1]
+                if ext in EXTENSIONS:
+                    image_list.append('/' + '/'.join((path + '/' + filename).split('/')[1:]))
+        if len(image_list) == 0:
             tmp = dict()
             tmp['img'] = '/static/empty.JPG'
             tmp['label'] = qs.label_name
             tmp['des'] = qs.description
             tmp['id'] = qs.id
             result_set.append(tmp)
-            continue
-        tmp = dict()
-        tmp['img'] = image_queryset.image_name
-        tmp['label'] = qs.label_name
-        tmp['des'] = qs.description
-        tmp['id'] = qs.id
-        result_set.append(tmp)
+        else:
+            random_int = random.randrange(0, len(image_list))
+            tmp = dict()
+            tmp['img'] = image_list[random_int]
+            tmp['label'] = qs.label_name
+            tmp['des'] = qs.description
+            tmp['id'] = qs.id
+            result_set.append(tmp)
     return render(request, 'image/list_label.html', {'label_list': result_set})
 
 
 def detail_label(request, id):
     label = Label.objects.all().get(id=id)
-    queryset = label.image_set.all()
-    return render(request, 'image/detail_label.html', {'images': queryset, 'label': label.label_name})
+    dir_path = 'image/static/images/%s' % label.id
+    image_list = []
+    for (path, dir, files) in os.walk(dir_path):
+        for filename in files:
+            ext = os.path.splitext(filename)[-1]
+            if ext in EXTENSIONS:
+                image_list.append('/' + '/'.join((path + '/' + filename).split('/')[1:]))
+    return render(request, 'image/detail_label.html', {'images': image_list, 'label': label})
 
 
 def display_prediction(request):

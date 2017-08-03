@@ -4,7 +4,10 @@ import pickle
 import timeit
 import logging
 import heapq
-import json
+import zipfile
+import tarfile
+
+from django.shortcuts import redirect
 from .models import Label
 
 from django.shortcuts import render
@@ -24,22 +27,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 similarity_func = get_similarity_func()
-ALLOWED_FORMAT = ['png', 'jpg', 'jpeg', 'gif', 'JPG', 'PNG']
+ALLOWED_FORMAT = ['zip', 'ZIP', 'tar', 'TAR', 'jpg', 'JPG', 'png', 'PNG', 'jpeg', 'JPEG', 'gif', 'GIF']
+IMG_ALLOWED_FORMAT = ['jpg', 'JPG', 'jpeg', 'JPEG']
 args = ARGS()
 IV4_vec2list_path = os.path.join(BASE_DIR, 'image/engine/vectors/vectors_i4_app/vec2list.pickle')
-
-# IV4_vec2list_path = os.path.join(BASE_DIR, 'image/engine/vectors/vectors_i4_app/vec2list.pickle')
-#
-# with tf.gfile.FastGFile(os.path.join(BASE_DIR, configs.output_graph), 'rb') as fp:
-#     graph_def = tf.GraphDef()
-#     graph_def.ParseFromString(fp.read())
-#     tf.import_graph_def(graph_def, name='')
-# config = tf.ConfigProto(allow_soft_placement=True)
-# iv4_sess = tf.Session(config=config)
-# iv4_bottleneck = iv4_sess.graph.get_tensor_by_name('input/BottleneckInputPlaceholder:0')
-#
-# with open(IV4_vec2list_path, 'rb') as handle:
-#     iv4_vector_list = pickle.load(handle)
 
 
 @csrf_exempt
@@ -73,6 +64,27 @@ def train(request):
 
 
 @csrf_exempt
+def upload_image(request, label):
+    logger.debug(request)
+    try:
+        if request.method == 'POST':
+            file = request.FILES.get('image')
+            print('label : ', label)
+            if file is None:
+                return redirect('image:list_label')
+            if allowed_file(str(file)):
+                res = save_file(file=file, label=label)
+                print(res)
+                return redirect('image:list_label')
+            else:
+                return redirect('image:list_label')
+
+    except Exception as exp:
+        logger.exception(exp)
+        return render({'result': False, 'reason': 'INTERNAL SERVER ERROR'})
+
+
+@csrf_exempt
 def predict(request):
     logger.debug(request)
     try:
@@ -92,8 +104,8 @@ def predict(request):
             file = request.FILES.get('image')
             if file is None:
                 return render(request, 'image/display_prediction.html')
-            if allowed_file(str(file)):
-                img_path = save_file(file)
+            if img_allowed_file(str(file)):
+                img_path = save_file(file=file, label=None)
             else:
                 return render(request, 'image/display_prediction.html')
 
@@ -109,8 +121,8 @@ def predict(request):
             for result in iv4_keys_sorted:
                 tmp = dict()
                 tmp['distance'] = iv4_img_list.get(result)
-                tmp['img'] = str('/static/' + result.replace('\\', '/'))
-                tmp['label'] = str('/static/' + result.replace('\\', '/')).split('/')[-2]
+                tmp['img'] = '/' + '/'.join(result.replace('\\', '/').split('/')[1:])
+                tmp['label'] = Label.objects.all().get(id=int(result.replace('\\', '/').split('/')[-2])).label_name
                 iv4_images.append(tmp)
 
             end = timeit.default_timer()
@@ -126,10 +138,42 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_FORMAT
 
 
-def save_file(file):
-    filename = file._get_name()
-    fd = open('image/static/upload/%s' % str(filename), 'wb')
+def img_allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in IMG_ALLOWED_FORMAT
+
+
+def save_file(file, label):
+    if label is None:
+        filename = file._get_name()
+        dir = 'image/static/upload'
+    else:
+        filename = file._get_name()
+        dir = 'image/static/images/%s' % label
+    if not os.path.exists(dir):
+        os.mkdir(dir)
+    fd = open(os.path.join(dir, filename), 'wb')
     for chunk in file.chunks():
         fd.write(chunk)
     fd.close()
-    return 'image/static/upload/%s' % str(filename)
+
+    if 'zip' in filename or 'ZIP' in filename:
+        try:
+            zip = zipfile.ZipFile(os.path.join(dir, filename))
+            zip.extractall(dir)
+            zip.close()
+            return True
+        except Exception as e:
+            print('ZIP error : ', e)
+            return False
+
+    elif 'tar' in filename or 'TAR' in filename:
+        try:
+            tar = tarfile.open(os.path.join(dir, filename))
+            tar.extractall(dir)
+            tar.close()
+            return True
+        except Exception as e:
+            print('ZIP error : ', e)
+            return False
+    else:
+        return os.path.join(dir, filename)

@@ -1,12 +1,5 @@
 from django.contrib import admin
-from .models import Image
 from .models import Label
-
-
-@admin.register(Image)
-class ImageAdmin(admin.ModelAdmin):
-    list_display = ['id', 'image_name', 'label', 'upload_time'] # display 리스트 지정
-    # actions = ['make_published', 'make_draft']  # 액션 리스트 지정
 
 
 @admin.register(Label)
