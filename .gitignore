@@ -6,7 +6,7 @@ __*
 # Except this file
 !.gitignore
 image/migrations/0001_initial.py
-image
+image/engine/
 #cache
 D:\PythonProject\image_searcher\image_searcher\__pycache__\*
 D:\PythonProject\image_searcher\.idea/*
