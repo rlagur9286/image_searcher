@@ -5,7 +5,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from pytz import timezone
 from django.shortcuts import redirect
-
+from .apis import allowed_file
+from .apis import save_file
 from .forms import PostForm
 from image.models import Label
 
@@ -20,12 +21,17 @@ def create_label(request):
     form = PostForm(request.POST)
     if request.method == "POST":
         if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.published_date = dt.datetime.now(timezone('Asia/Seoul'))
-            post.save()
+            label = form.save(commit=False)
+            label.description = request.POST.get('description')
+            file = request.FILES.get('image')
+            label.upload_time = dt.datetime.now(timezone('Asia/Seoul'))
+            label.save()
+            if file is None:
+                return redirect('image:list_label')
+            if allowed_file(str(file)):
+                save_file(file=file, label=label.id)
             return redirect('root')
-    return render(request, 'image/list_label.html', {'form': form})
+    return redirect('root')
 
 
 def list_label(request):

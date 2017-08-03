@@ -2,7 +2,7 @@
 {% block content %}
     <div class="container">
         <div class="jumbotron">
-            <h1><strong>IMAGE SEARCH ENGINE</strong> <sup>by H</sup></h1>
+            <h1><strong>IMAGE SEARCH ENGINE</strong> <sup>by KTh</sup></h1>
             <p>여러분을 대신해서 찾아드리겠습니다.</p>
             <p>
                 <a class="btn btn-lg btn-danger" href="#">
@@ -63,7 +63,7 @@
                         </div>
                         <div class="modal-body">
                             <div class="alert alert-dismissible alert-success"><h1><string>CREATE LABEL</string></h1></div>
-                            <form method="POST" class="post-form" action="{% url "image:create_label" %}">{% csrf_token %}
+                            <form method="POST" enctype=multipart/form-data class="post-form" action="{% url "image:create_label" %}">{% csrf_token %}
                                 <div class="form-group has-success">
                                     <label class="control-label" for="inputSuccess">LABEL</label>
                                     <input class="form-control" name="label_name" type="text">
@@ -72,10 +72,14 @@
                                     <label class="control-label" for="inputSuccess">DESCRIPTION(Optional)</label>
                                     <input class="form-control" name="description" type="text">
                                 </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="save btn btn-default">Save</button>
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                            </div>
+                                <div class="form-group has-success">
+                                    <button class="btn btn-default" style="position: absolute; cursor: pointer; border-radius: 3px;">FILE UPLOAD</button>
+                                    <input type=file style="opacity: 0; position: relative;" name=image value="FILE UPLOAD">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="save btn btn-default">Save</button>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
                             </form>
                         </div>
                     </div>

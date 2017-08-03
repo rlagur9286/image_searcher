@@ -56,7 +56,7 @@ def train(request):
         vector_actual_path = trainer.vectorize_with_GPU(gpu_list=['/gpu:0'])
         save_vec2list(vector_actual_path=vector_actual_path)
 
-        return render(request, 'image/list_label.html')
+        return redirect('root')
 
     except Exception as exp:
         logger.exception(exp)
@@ -69,12 +69,10 @@ def upload_image(request, label):
     try:
         if request.method == 'POST':
             file = request.FILES.get('image')
-            print('label : ', label)
             if file is None:
                 return redirect('image:list_label')
             if allowed_file(str(file)):
-                res = save_file(file=file, label=label)
-                print(res)
+                save_file(file=file, label=label)
                 return redirect('image:list_label')
             else:
                 return redirect('image:list_label')
