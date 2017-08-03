@@ -16,7 +16,7 @@ class Post(models.Model):
 
     tags = models.CharField(max_length=100, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
-    tag_set = models.ManyToManyField('Tag', blank=True)
+    tag_set = models.ManyToManyField('Tag')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

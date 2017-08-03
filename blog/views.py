@@ -14,10 +14,6 @@ def post_list(request):
 
 
 def post_detail(request, id):
-    # try:
-    #     post = Post.objects.get(id=id)
-    # except Post.DoesNotExist:
-    #     raise Http404
-    get_object_or_404(Post, id=id)
+    post = get_object_or_404(Post, id=id)
 
     return render(request, 'blog/post_detail.html', {'post': post})

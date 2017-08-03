@@ -8,4 +8,15 @@
    {{ post.title }}
     <h1>{{ post.title }}</h1>
     <h2>{{ post.content|linebreaks }}</h2>
+    <hr/>
+    <h3>Comment</h3>
+    <ul>
+        {% for comment in post.comment_set.all %}
+            <li>
+            {{ comment.message }}
+            <small>by {{ comment.author }}</small>
+            <small>{{ comment.updated_at }}</small>
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock %}
