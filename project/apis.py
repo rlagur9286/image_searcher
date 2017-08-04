@@ -14,11 +14,11 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from image_searcher.settings import BASE_DIR
-from image.engine.utils.configs import ARGS
-from image.engine.utils.vector_file_handler import save_vec2list
-from image.engine.Incept_v4_Trainer import Incept_v4_Trainer
-from image.engine.utils import configs
-from image.engine.utils.ops import get_similarity_func
+from project.engine.utils.configs import ARGS
+from project.engine.utils.vector_file_handler import save_vec2list
+from project.engine.Incept_v4_Trainer import Incept_v4_Trainer
+from project.engine.utils import configs
+from project.engine.utils.ops import get_similarity_func
 
 logging.basicConfig(
     format="[%(name)s][%(asctime)s] %(message)s",
@@ -30,7 +30,7 @@ similarity_func = get_similarity_func()
 ALLOWED_FORMAT = ['zip', 'ZIP', 'tar', 'TAR', 'jpg', 'JPG', 'png', 'PNG', 'jpeg', 'JPEG', 'gif', 'GIF']
 IMG_ALLOWED_FORMAT = ['jpg', 'JPG', 'jpeg', 'JPEG']
 args = ARGS()
-IV4_vec2list_path = os.path.join(BASE_DIR, 'image/engine/vectors/vectors_i4_app/vec2list.pickle')
+IV4_vec2list_path = os.path.join(BASE_DIR, 'project/engine/vectors/vectors_i4_app/vec2list.pickle')
 
 
 @csrf_exempt
@@ -70,12 +70,12 @@ def upload_image(request, label):
         if request.method == 'POST':
             file = request.FILES.get('image')
             if file is None:
-                return redirect('image:list_label')
+                return redirect('project:list_label')
             if allowed_file(str(file)):
                 save_file(file=file, label=label)
-                return redirect('image:list_label')
+                return redirect('project:list_label')
             else:
-                return redirect('image:list_label')
+                return redirect('project:list_label')
 
     except Exception as exp:
         logger.exception(exp)
@@ -101,11 +101,11 @@ def predict(request):
 
             file = request.FILES.get('image')
             if file is None:
-                return render(request, 'image/display_prediction.html')
+                return render(request, 'project/display_prediction.html')
             if img_allowed_file(str(file)):
                 img_path = save_file(file=file, label=None)
             else:
-                return render(request, 'image/display_prediction.html')
+                return render(request, 'project/display_prediction.html')
 
             # For inception v4
             iv4_img_list = {}
@@ -126,7 +126,7 @@ def predict(request):
             end = timeit.default_timer()
             print('Time to load : ', end - start)
             print('ICEPTION : ', iv4_images)
-            return render(request, 'image/display_prediction.html', {'images': iv4_images})
+            return render(request, 'project/display_prediction.html', {'images': iv4_images})
     except Exception as exp:
         logger.exception(exp)
         return render({'result': False, 'reason': 'INTERNAL SERVER ERROR'})
@@ -143,10 +143,10 @@ def img_allowed_file(filename):
 def save_file(file, label):
     if label is None:
         filename = file._get_name()
-        dir = 'image/static/upload'
+        dir = 'project/static/upload'
     else:
         filename = file._get_name()
-        dir = 'image/static/images/%s' % label
+        dir = 'project/static/images/%s' % label
     if not os.path.exists(dir):
         os.mkdir(dir)
     fd = open(os.path.join(dir, filename), 'wb')
@@ -159,6 +159,7 @@ def save_file(file, label):
             zip = zipfile.ZipFile(os.path.join(dir, filename))
             zip.extractall(dir)
             zip.close()
+            os.remove(os.path.join(dir, filename))
             return True
         except Exception as e:
             print('ZIP error : ', e)
@@ -169,6 +170,7 @@ def save_file(file, label):
             tar = tarfile.open(os.path.join(dir, filename))
             tar.extractall(dir)
             tar.close()
+            os.remove(os.path.join(dir, filename))
             return True
         except Exception as e:
             print('ZIP error : ', e)

@@ -3,6 +3,7 @@ from .models import Post
 from .models import Comment
 from .models import Tag
 
+
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ['id', 'title', 'abs_size', 'content', 'created_at', 'updated_at']  # display 리스트 지정

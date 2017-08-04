@@ -19,12 +19,12 @@ from django.shortcuts import redirect
 
 
 def root(request):
-    return redirect('image:list_label')
+    return redirect('project:list_project')
 
 urlpatterns = [
     url(r'^$', root, name='root'),
     url(r'^admin/', admin.site.urls),
-    url(r'^image/', include('image.urls', namespace='image')),
     url(r'^account/', include('account.urls', namespace='account')),
     url(r'^blog/', include('blog.urls', namespace='blog')),
+    url(r'^project/', include('project.urls', namespace='project')),
 ]
