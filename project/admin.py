@@ -2,9 +2,10 @@ from django.contrib import admin
 from .models import Project
 from .models import Label
 
+
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ['id', 'project_name', 'description', 'user', 'created_at']  # display 리스트 지정
+    list_display = ['id', 'project_name', 'description', 'user', 'model', 'is_changed', 'created_at']  # display 리스트 지정
 
 
 @admin.register(Label)

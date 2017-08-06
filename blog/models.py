@@ -15,7 +15,7 @@ class Post(models.Model):
     content = models.TextField(verbose_name='내용')  # 길이 제한이 없는 문자열
 
     tags = models.CharField(max_length=100, blank=True)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, blank=True)
     tag_set = models.ManyToManyField('Tag', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

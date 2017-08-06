@@ -20,7 +20,7 @@
                     </ul>
                 </div>
                 <p>
-                <div class="col-xs-1">
+                <div class="col-xs-3" style="margin-bottom: 20px">
                     <form action="" method="get">
                         <input type="text" name="q" value="{{ q }}"/>
                         <input type="submit" value="검색" class="btn btn-danger"/>
@@ -37,9 +37,9 @@
                     </div><!--/.col-xs-3-->
                     {% for project in project_list %}
                         <div class="col-xs-3">
-                            <a href="{% url "project:list_label" project.id %}"><img src="/static/bin_project.jpg" width="100%" height="300"/></a>
+                            <a href="{% url "project:list_label" project.project.id %}"><img src="{{ project.img }}" width="100%" height="300"/></a>
                             <div class="project-title ng-binding" align="center" style="position: absolute;left: 5%; color:white; bottom: 0;font-size: 34px;
-                            width: 90% ;font-weight: bold;opacity: 1; filter: alpha(opacity=10);background-color: rgba(50, 50, 50, 0.3)">{{ project.project_name }}</div>
+                            width: 90% ;font-weight: bold;opacity: 1; filter: alpha(opacity=10);background-color: rgba(50, 50, 50, 0.3)">{{ project.project.project_name }}</div>
                         </div><!--/.col-xs-3-->
                     {% endfor %}
                 </div><!--/row-->

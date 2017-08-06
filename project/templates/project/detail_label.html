@@ -40,7 +40,7 @@
                             <li>현재 지원하는 형식은 <strong>tar, zip, jpg, jpeg </strong>입니다.</li>
                         </ul>
                     </div>
-                    <form action="{% url "project:upload_image" label.id %}" method=POST enctype=multipart/form-data>{% csrf_token %}
+                    <form action="{% url "project:upload_image" p_id=project_id l_id=label.id %}" method=POST enctype=multipart/form-data>{% csrf_token %}
                         <button class="btn btn-default" style="position: absolute; cursor: pointer; border-radius: 3px;">FILE UPLOAD</button>
                         <input type=file style="opacity: 0; position: relative;" name=image value="FILE UPLOAD">
                         <div class="modal-footer">

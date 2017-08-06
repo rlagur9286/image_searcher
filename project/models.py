@@ -2,9 +2,12 @@ from django.db import models
 from django.conf import settings
 from django.shortcuts import reverse
 
+
 class Project(models.Model):
-    project_name = models.CharField(max_length=100, unique=True)
+    project_name = models.CharField(max_length=30, unique=True)
     description = models.CharField(max_length=255, blank=True)
+    model = models.CharField(max_length=255, blank=True)
+    is_changed = models.BooleanField(default=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -13,10 +16,9 @@ class Project(models.Model):
 
 
 class Label(models.Model):
-    label_name = models.CharField(max_length=255, unique=True)
+    label_name = models.CharField(max_length=30)
     upload_time = models.DateTimeField(auto_now_add=True)
     description = models.CharField(max_length=100, blank=True)
-    model = models.CharField(max_length=255, blank=True)
     project = models.ForeignKey(Project)
 
     def __str__(self):
