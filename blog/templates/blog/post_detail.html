@@ -19,4 +19,7 @@
             </li>
         {% endfor %}
     </ul>
+    <hr/>
+    <a href="{% url "blog:post_list" %}" class="btn btn-primary">돌아가기</a>
+    <a href="{% url "blog:post_edit" post.id %}" class="btn btn-primary">수 to the 정</a>
 {% endblock %}

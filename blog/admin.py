@@ -6,7 +6,7 @@ from .models import Tag
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'abs_size', 'content', 'created_at', 'updated_at']  # display 리스트 지정
+    list_display = ['id', 'title', 'abs_size', 'content', 'created_at', 'updated_at', 'ip']  # display 리스트 지정
     actions = ['make_published', 'make_draft']  # 액션 리스트 지정
 
     def abs_size(self, post):

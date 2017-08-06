@@ -1,5 +1,11 @@
 from django.db import models
 from django.core.urlresolvers import reverse
+from django import forms
+
+
+def min_length_3_validator(value):
+    if len(value) < 3:
+        raise forms.ValidationError('3글자 이상 입력해주세요')
 
 
 class Post(models.Model):
@@ -10,13 +16,14 @@ class Post(models.Model):
     )
     author = models.CharField(max_length=20)
     # user = models.ForeignKey(settings.AUTH_USER_MODEL)
-    title = models.CharField(max_length=100, verbose_name='제목',
+    title = models.CharField(max_length=100, verbose_name='제목', validators=[min_length_3_validator],
                              help_text='포스팅 제목을 입력해주세요. 최대 100자 내외.')  # 길이 제한이 있는 문자열
     content = models.TextField(verbose_name='내용')  # 길이 제한이 없는 문자열
 
     tags = models.CharField(max_length=100, blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, blank=True)
     tag_set = models.ManyToManyField('Tag', blank=True)
+    ip = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

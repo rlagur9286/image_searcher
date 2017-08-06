@@ -30,6 +30,7 @@
                     <input type="text" name="q" value="{{ q }}" />
                     <input type="submit" value="검색" class="btn btn-primary" />
                 </form>
+                <a href="{% url "blog:post_new" %}" class="btn btn-primary pull-right">New Post</a>
                 </p>
                 <table class="table table-hover table-bordered">
                     <thead>
