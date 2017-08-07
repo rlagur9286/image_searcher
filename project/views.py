@@ -17,11 +17,12 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 
 from .models import Project
-from .forms import ProjectForm
-from .forms import LabelForm
+from .forms import ProjectModelForm
+from .forms import LabelModelForm
 from .models import Label
-
 from image_searcher.settings import BASE_DIR
+
+from django.contrib import messages
 from project.engine.utils.configs import ARGS
 from project.engine.utils.vector_file_handler import save_vec2list
 from project.engine.Incept_v4_Trainer import Incept_v4_Trainer
@@ -75,12 +76,13 @@ def list_project(request):
 
 
 def create_project(request):
-    form = ProjectForm(request.POST)
+    form = ProjectModelForm(request.POST, request.FILES)
     if request.method == "POST":
         if form.is_valid():
             project = form.save(commit=False)
             project.user = request.user
             project.save()
+            messages.success(request, "새 Project 가 등록되었습니다.")
             dir_path = 'project/static/images/%s' % project.id
             if not os.path.exists(dir_path):
                 os.mkdir(dir_path)
@@ -136,7 +138,7 @@ def display_prediction(request, p_id):
 
 def create_label(request, p_id):
     project = get_object_or_404(Project, id=p_id)
-    form = LabelForm(request.POST)
+    form = LabelModelForm(request.POST)
     if request.method == "POST":
         if form.is_valid():
             if project.label_set.filter(label_name=request.POST.get('label_name')).exists():
@@ -146,6 +148,7 @@ def create_label(request, p_id):
             label.project = project
             file = request.FILES.get('image')
             label.save()
+            messages.success(request, "새 Label 가 등록되었습니다.")
             if file is None:
                 return redirect('project:list_label', id=project.id)
             if allowed_file(str(file)):
