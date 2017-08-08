@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from django.shortcuts import reverse
-from django.core.validators import MinLengthValidator
 from django import forms
 
 
@@ -32,7 +31,6 @@ class Label(models.Model):
         return self.label_name
 
     class Meta:
-        unique_together = ['project', 'label_name']
         ordering = ['id']   # 오름차순
         # ordering = ['-id']   # 내림차순
 

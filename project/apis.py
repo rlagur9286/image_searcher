@@ -21,14 +21,14 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 ALLOWED_FORMAT = ['png', 'jpg', 'jpeg', 'gif', 'JPG', 'PNG', 'JPEG']
-IV4_vec2list_path = 'engine/vectors/vectors_i4_app/vec2list.pickle'
+IV4_vec2list_path = 'project/engine/vectors/vectors_i4_app/vec2list.pickle'
 UPLOAD_FOLDER = 'static/upload/'
 
 similarity_func = get_similarity_func()
 
 image_db = ImageManager()
 info_all = image_db.retrieve_info_all()
-with tf.gfile.FastGFile(configs.output_graph, 'rb') as fp:
+with tf.gfile.FastGFile(configs.output_graph + 'output_graph.pb', 'rb') as fp:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(fp.read())
     tf.import_graph_def(graph_def, name='')
@@ -70,7 +70,7 @@ def search_image(request):
             iv4_img_list = {}
             iv4_image = tf.gfile.FastGFile(img_path, 'rb').read()
             iv4_image_vector = iv4_sess.run(iv4_bottleneck, {'DecodeJpeg/contents:0': iv4_image})
-            labels = [line.rstrip() for line in tf.gfile.GFile('graph/output_labels.txt')]
+            labels = [line.rstrip() for line in tf.gfile.GFile(configs.output_graph + 'output_labels.txt')]
             prediction = iv4_sess.run(logits, {'DecodeJpeg/contents:0': iv4_image})
             s_label = heapq.nlargest(3, range(len(prediction[0])), prediction[0].__getitem__)
             s_label = [labels[idx] for idx in s_label]
