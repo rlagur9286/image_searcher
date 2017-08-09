@@ -16,5 +16,5 @@ urlpatterns = [     # 순차적으로 검사됨
     # For App api
     url(r'^api/search/$', apis.search_image, name='api_search_image'),
     url(r'^api/upload/$', apis.upload_image, name='api_upload_image'),
-    url(r'^api/upload/$', apis.recommend_product, name='api_recommend_product'),
+    url(r'^api/recommend/$', apis.recommend_product, name='api_recommend_product'),
 ]

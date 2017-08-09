@@ -134,8 +134,8 @@ def upload_image(request):
 def recommend_product(request):
     if request.method == 'GET':
         try:
+            page = request.GET.get('page')
             result_set = dict()
-            page = request.args.get('page')
             if page is None:
                 page = 0
             try:
