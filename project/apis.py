@@ -1,7 +1,6 @@
 import os
 import tensorflow as tf
 import pickle
-import timeit
 import logging
 import heapq
 import json
@@ -9,7 +8,7 @@ import json
 from .engine.utils.database import ImageManager
 from .engine.utils import configs
 from .engine.utils.ops import get_similarity_func
-
+from image_searcher.settings import BASE_DIR
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 
@@ -22,7 +21,9 @@ logger = logging.getLogger(__name__)
 
 ALLOWED_FORMAT = ['png', 'jpg', 'jpeg', 'gif', 'JPG', 'PNG', 'JPEG']
 IV4_vec2list_path = 'project/engine/vectors/vectors_i4_app/vec2list.pickle'
-UPLOAD_FOLDER = 'static/upload/'
+UPLOAD_FOLDER = 'media/api_upload/'
+if not os.path.isdir(UPLOAD_FOLDER):
+    os.mkdir(UPLOAD_FOLDER)
 
 similarity_func = get_similarity_func()
 
@@ -45,26 +46,26 @@ with open(IV4_vec2list_path, 'rb') as handle:
 def search_image(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body.decode('utf-8'))
-            logger.debug("INPUT %s", data)
             result_set = dict()
 
             # Get Variable for Meta data Info
-            brand = data.get('brand')
-            class_type = data.get('class_type')
+            brand = request.POST.get('brand')
+            class_type = request.POST.get('class_type')
 
             if class_type is not None:
                 if not os.path.isdir(UPLOAD_FOLDER + class_type):
                     os.mkdir(UPLOAD_FOLDER + class_type)
-            image_dir = UPLOAD_FOLDER + class_type
+                image_dir = UPLOAD_FOLDER + class_type + '/'
+            else:
+                image_dir = UPLOAD_FOLDER
             file = request.FILES.get('image')
 
             if not file:
                 return JsonResponse({'success': False, 'reason': '파일은 필수 입니다.'})
-            img_path = image_dir + '/' + file.filename
-            if not allowed_file(file.filename):
+            img_path = image_dir + file.name
+            if not allowed_file(file.name):
                 return JsonResponse({'success': False, 'reason': '파일은 형식을 확인해주세요'})
-            file.save(img_path)
+            save_file(file=file, img_path=img_path)
 
             # For inception v4 Model
             iv4_img_list = {}
@@ -103,25 +104,28 @@ def search_image(request):
 def upload_image(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body.decode('utf-8'))
-            logger.debug("INPUT %s", data)
+            result_set = dict()
 
             # Get Variable for Meta data Info
-            brand = data.get('brand')
-            class_type = data.get('class_type')
-            if not os.path.isdir(UPLOAD_FOLDER + class_type):
-                os.mkdir(UPLOAD_FOLDER + class_type)
-            image_dir = UPLOAD_FOLDER + class_type
-            file = request.files.get('image')
-            if file is None:
-                return JsonResponse({'success': False, 'message': 'IMAGE는 필수 입니다.'})
+            brand = request.POST.get('brand')
+            class_type = request.POST.get('class_type')
 
-            img_path = image_dir + '/' + file.filename
-            if allowed_file(img_path):
-                file.save(img_path)
-                return JsonResponse({'success': True, 'message': '성공!'})
+            if class_type is not None:
+                if not os.path.isdir(UPLOAD_FOLDER + class_type):
+                    os.mkdir(UPLOAD_FOLDER + class_type)
+                image_dir = UPLOAD_FOLDER + class_type + '/'
             else:
-                return JsonResponse({'success': False, 'message': '[%s] 파일 형식 확인해 주세요' % file.filename})
+                image_dir = UPLOAD_FOLDER
+            file = request.FILES.get('image')
+
+            if not file:
+                return JsonResponse({'success': False, 'reason': '파일은 필수 입니다.'})
+            img_path = image_dir + file.name
+            if not allowed_file(file.name):
+                return JsonResponse({'success': False, 'reason': '파일은 형식을 확인해주세요'})
+            save_file(file=file, img_path=img_path)
+
+            return JsonResponse({'success': True, 'message': '성공!'})
 
         except Exception as exp:
             return JsonResponse({'success': False, 'message': exp})
@@ -157,3 +161,9 @@ def recommend_product(request):
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_FORMAT
 
+
+def save_file(file=None, img_path=None):
+    fd = open(os.path.join(BASE_DIR, img_path), 'wb')
+    for chunk in file.chunks():
+        fd.write(chunk)
+    fd.close()

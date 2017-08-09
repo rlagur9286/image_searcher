@@ -55,13 +55,13 @@ def list_project(request):
             tmp['project'] = project
             result_set.append(tmp)
             continue
-        dir_path = 'project/static/images/%s/%s' % (project.id, label.id)
+        dir_path = 'media/images/%s/%s' % (project.id, label.id)
         image_list = []
         for (path, dir, files) in os.walk(dir_path):
             for filename in files:
                 ext = os.path.splitext(filename)[-1]
                 if ext in EXTENSIONS:
-                    image_list.append('/' + '/'.join((path + '/' + filename).split('/')[1:]))
+                    image_list.append('/' + os.path.join(path, filename))
         if len(image_list) == 0:
             tmp = dict()
             tmp['img'] = None
@@ -83,7 +83,7 @@ def create_project(request):
             project.user = request.user
             project.save()
             messages.success(request, "새 Project 가 등록되었습니다.")
-            dir_path = 'project/static/images/%s' % project.id
+            dir_path = 'media/images/%s' % project.id
             if not os.path.exists(dir_path):
                 os.mkdir(dir_path)
     return redirect('root')
@@ -94,13 +94,13 @@ def list_label(request, id):
     project = get_object_or_404(Project, id=id)
     queryset = project.label_set.all()
     for qs in queryset:
-        dir_path = 'project/static/images/%s/%s' % (id, qs.id)
+        dir_path = 'media/images/%s/%s' % (id, qs.id)
         image_list = []
         for (path, dir, files) in os.walk(dir_path):
             for filename in files:
                 ext = os.path.splitext(filename)[-1]
                 if ext in EXTENSIONS:
-                    image_list.append('/' + '/'.join((path + '/' + filename).split('/')[1:]))
+                    image_list.append('/' + os.path.join(path, filename))
         if len(image_list) == 0:
             tmp = dict()
             tmp['img'] = None
@@ -121,13 +121,13 @@ def list_label(request, id):
 
 def detail_label(request, p_id, l_id):
     label = get_object_or_404(Label, id=l_id)
-    dir_path = 'project/static/images/%s/%s' % (p_id, label.id)
+    dir_path = 'media/images/%s/%s' % (p_id, label.id)
     image_list = []
     for (path, dir, files) in os.walk(dir_path):
         for filename in files:
             ext = os.path.splitext(filename)[-1]
             if ext in EXTENSIONS:
-                image_list.append('/' + '/'.join((path + '/' + filename).split('/')[1:]))
+                image_list.append('/' + os.path.join(path, filename))
     return render(request, 'project/detail_label.html', {'images': image_list, 'label': label, 'project_id': label.project_id})
 
 
@@ -194,7 +194,7 @@ def predict(request, p_id):
             for result in iv4_keys_sorted:
                 tmp = dict()
                 tmp['distance'] = iv4_img_list.get(result)
-                tmp['img'] = '/' + '/'.join(result.replace('\\', '/').split('/')[1:])
+                tmp['img'] = '/' + result.replace('\\', '/')
                 tmp['label'] = Label.objects.all().get(id=int(result.replace('\\', '/').split('/')[-2])).label_name
                 iv4_images.append(tmp)
 
@@ -290,10 +290,10 @@ def img_allowed_file(filename):
 def save_file(file, label, project=None):
     if label is None:
         filename = file._get_name()
-        dir_path = 'project/static/upload'
+        dir_path = 'media/upload'
     else:
         filename = file._get_name()
-        dir_path = 'project/static/images/%s/%s' % (project, label)
+        dir_path = 'media/images/%s/%s' % (project, label)
     if not os.path.exists(dir_path):
         os.mkdir(dir_path)
     fd = open(os.path.join(dir_path, filename), 'wb')
