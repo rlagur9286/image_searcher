@@ -1,4 +1,5 @@
 {% extends "project/layout.html" %}
+{% load static %}
 {% block content %}
     <div class="container">
         <div class="jumbotron">
@@ -31,13 +32,19 @@
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-xs-3">
-                        <button type="button" data-toggle="modal" data-target="#myModal"><img src="/static/bin_project.jpg" width="100%" height="290" style = "position: relative;"/></button>
+                        <button type="button" data-toggle="modal" data-target="#myModal"><img src="{% static "project/bin_project.JPG" %}" width="100%" height="290" style = "position: relative;"/></button>
                         <div class="project-title ng-binding" align="center" style="position: absolute; left: 7%; bottom: 1.5%; color:white; font-size: 34px;
                         width: 87% ;font-weight: bold;opacity: 1; filter: alpha(opacity=10);background-color: rgba(50, 50, 50, 0.3)">PROJECT 추가</div>
                     </div><!--/.col-xs-3-->
                     {% for project in project_list %}
                         <div class="col-xs-3">
-                            <a href="{% url "project:list_label" project.project.id %}"><img src="{{ project.img }}" width="100%" height="300"/></a>
+                            <a href="{% url "project:list_label" project.project.id %}">
+                                {% if project.img %}
+                                    <img src="{{ project.img }}" width="100%" height="300"/>
+                                {% else %}
+                                   <img src="{% static "project/empty.JPG" %}" width="100%" height="300"/>
+                                {% endif %}
+                            </a>
                             <div class="project-title ng-binding" align="center" style="position: absolute;left: 5%; color:white; bottom: 0;font-size: 34px;
                             width: 90% ;font-weight: bold;opacity: 1; filter: alpha(opacity=10);background-color: rgba(50, 50, 50, 0.3)">{{ project.project.project_name }}</div>
                         </div><!--/.col-xs-3-->

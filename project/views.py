@@ -51,7 +51,7 @@ def list_project(request):
         label = project.label_set.first()
         if label is None:
             tmp = dict()
-            tmp['img'] = '/static/empty.JPG'
+            tmp['img'] = None
             tmp['project'] = project
             result_set.append(tmp)
             continue
@@ -64,7 +64,7 @@ def list_project(request):
                     image_list.append('/' + '/'.join((path + '/' + filename).split('/')[1:]))
         if len(image_list) == 0:
             tmp = dict()
-            tmp['img'] = '/static/empty.JPG'
+            tmp['img'] = None
             result_set.append(tmp)
         else:
             random_int = random.randrange(0, len(image_list))
@@ -103,7 +103,7 @@ def list_label(request, id):
                     image_list.append('/' + '/'.join((path + '/' + filename).split('/')[1:]))
         if len(image_list) == 0:
             tmp = dict()
-            tmp['img'] = '/static/empty.JPG'
+            tmp['img'] = None
             tmp['label'] = qs.label_name
             tmp['des'] = qs.description
             tmp['id'] = qs.id

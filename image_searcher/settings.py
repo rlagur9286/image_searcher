@@ -122,5 +122,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATICFILES_DIRS = ("static", )
-STATIC_URL = '/static/'
+STATICFILES_DIRS = [    # Static Files Finder를 찾기 위해서!
+    os.path.join(BASE_DIR, 'image_searcher', 'static'),
+]
+STATIC_URL = '/static/'  # 항상 /로 끝이 나도록 설정
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # static 파일들을 모을 디렉토리
