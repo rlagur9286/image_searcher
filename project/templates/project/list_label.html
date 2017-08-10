@@ -2,14 +2,6 @@
 {% load static %}
 {% block head %}
     <style type="text/css">
-        .preload {
-            z-index: 100;
-            display:none;
-            width:500px;
-            height: 500px;
-            position: fixed;
-            top: 50%;
-            left: 50%;}
         div.backLayer {
             display:none;
             background-color:black;
@@ -23,20 +15,17 @@
     <script>
         $(document).ready(function(){
             $( "#loading" ).click(function() {
-                var width = $(document).width();
-                var height = $(document).height();
-                $(".backLayer").width(width);
-                $(".backLayer").height(height);
-                $(".backLayer").show();
-                $(".preload").show();
+                $("#loading").text("학습 중")
+                $("#loading").removeClass('btn btn-primary').addClass('btn btn-danger');
                 console.log("click");
                 $.ajax("{% url "project:train" project.id %}", {
                     method: 'POST',
-                    complete:function(xhr, settings) {
-                        $('#loading').removeAttr("disabled");
+                    beforeSend: function(){
+                        $('#loading').attr("disabled", true);
                     },
                     success: function (res) {
-                        $( ".preload" ).hide();
+                        $("#loading").text("학습 하기")
+                        $("#loading").removeClass('btn btn-danger').addClass('btn btn-primary');
                         console.log(res);
                         if(res.result == 2) {
                             $('#pretrained').modal('toggle');
@@ -46,7 +35,11 @@
                             $('#trainDone').modal('toggle');
                             $(".backLayer").hide();
                         }
-                    }, error: function (xhr, status, error) {
+                    },
+                    complete:function(xhr, settings) {
+                        $('#loading').removeAttr("disabled");
+                    },
+                    error: function (xhr, status, error) {
                         console.log(xhr);
                     }
                 });
@@ -187,6 +180,5 @@
             </div>
         </div><!--/.sidebar-offcanvas-->
     </div><!--/row-->
-    <div class="preload"><img src="{% static "project/bluecircle.gif" %}"></div>
 {% endblock %}
 
