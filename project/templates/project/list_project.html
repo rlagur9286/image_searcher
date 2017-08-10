@@ -6,7 +6,7 @@
             <h1><strong>IMAGE SEARCH ENGINE</strong> <sup>by KTh</sup></h1>
             <p>여러분을 대신해서 찾아드리겠습니다.</p>
             <p>
-                <a class="btn btn-lg btn-danger" href="#">
+                <a class="btn btn-lg btn-primary" href="#">
                     API 문서 확인하기 &raquo;
                 </a>
             </p>
@@ -24,7 +24,7 @@
                 <div class="col-xs-3" style="margin-bottom: 20px">
                     <form action="" method="get">
                         <input type="text" name="q" value="{{ q }}"/>
-                        <input type="submit" value="검색" class="btn btn-danger"/>
+                        <input type="submit" value="검색" class="btn btn-primary"/>
                     </form>
                 </div>
                 </p>
@@ -63,7 +63,7 @@
                             <h4 class="modal-title">CREATE PROJECT</h4>
                         </div>
                         <div class="modal-body">
-                            <div class="alert alert-dismissible alert-success"><h1><string>CREATE PROJECT</string></h1></div>
+                            <div class="alert alert-dismissible alert-success"><h1><strong>CREATE PROJECT</strong></h1></div>
                             <form method="POST" enctype=multipart/form-data class="post-form" action="{% url "project:create_project" %}">{% csrf_token %}
                                 <div class="form-group has-success">
                                     <label class="control-label" for="inputSuccess">PROJECT</label>
@@ -74,8 +74,8 @@
                                     <input class="form-control" name="description" type="text">
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="save btn btn-default">Save</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="save btn btn-primary">Save</button>
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                                 </div>
                             </form>
                         </div>

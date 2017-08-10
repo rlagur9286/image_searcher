@@ -1,12 +1,68 @@
 {% extends "project/layout.html" %}
 {% load static %}
+{% block head %}
+    <style type="text/css">
+        .preload {
+            z-index: 100;
+            display:none;
+            width:500px;
+            height: 500px;
+            position: fixed;
+            top: 50%;
+            left: 50%;}
+        div.backLayer {
+            display:none;
+            background-color:black;
+            position:absolute;
+            opacity:0.3;
+            left:0;
+            top:0;
+            z-index: 99;
+        }
+    </style>
+    <script>
+        $(document).ready(function(){
+            $( "#loading" ).click(function() {
+                var width = $(document).width();
+                var height = $(document).height();
+                $(".backLayer").width(width);
+                $(".backLayer").height(height);
+                $(".backLayer").show();
+                $(".preload").show();
+                console.log("click");
+                $.ajax("{% url "project:train" project.id %}", {
+                    method: 'POST',
+                    complete:function(xhr, settings) {
+                        $('#loading').removeAttr("disabled");
+                    },
+                    success: function (res) {
+                        $( ".preload" ).hide();
+                        console.log(res);
+                        if(res.result == 2) {
+                            $('#pretrained').modal('toggle');
+                            $(".backLayer").hide();
+                        }
+                        else{
+                            $('#trainDone').modal('toggle');
+                            $(".backLayer").hide();
+                        }
+                    }, error: function (xhr, status, error) {
+                        console.log(xhr);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
 {% block content %}
+    <div class="backLayer" style=""></div>
     <div class="container">
         <div class="jumbotron">
             <h1><strong>IMAGE SEARCH ENGINE</strong> <sup>by KTh</sup></h1>
             <p>여러분을 대신해서 찾아드리겠습니다.</p>
             <p>
-                <a class="btn btn-lg btn-danger" href="#">
+                <a class="btn btn-lg btn-primary" href="#">
                     API 문서 확인하기 &raquo;
                 </a>
             </p>
@@ -21,17 +77,12 @@
                     </ul>
                 </div>
                 <p>
-                <div class="col-xs-3" style="margin-bottom: 20px">
-                    <form action="" method="get">
-                        <input type="text" name="q" value="{{ q }}"/>
-                        <input type="submit" value="검색" class="btn btn-danger"/>
-                    </form>
-                </div>
+                <div class="col-xs-3"></div>
                 <div class="col-xs-3"></div>
                 <div class="col-xs-2"></div>
                 <div class="col-xs-2"></div>
-                <div class="col-xs-1"><a href="{% url "project:train" project.id%}" class="btn btn-danger">학습 하기</a></div>
-                <div class="col-xs-1" ><a href="{% url "project:display_prediction" project.id %}" class="btn btn-danger">추론 하기</a></div>
+                <div class="col-xs-1"><button id="loading"  class="btn btn-primary">학습 하기</button></div>
+                <div class="col-xs-1" ><a href="{% url "project:display_prediction" project.id %}" class="btn btn-primary">추론 하기</a></div>
                 </p>
             </div>
             <div class="container-fluid">
@@ -68,7 +119,7 @@
                             <h4 class="modal-title">CREATE LABEL</h4>
                         </div>
                         <div class="modal-body">
-                            <div class="alert alert-dismissible alert-success"><h1><string>CREATE LABEL</string></h1></div>
+                            <div class="alert alert-dismissible alert-success"><h1><strong>CREATE LABEL</strong></h1></div>
                             <form method="POST" enctype=multipart/form-data class="post-form" action="{% url "project:create_label" project.id %}">{% csrf_token %}
                                 <div class="form-group has-success">
                                     <label class="control-label" for="inputSuccess">LABEL</label>
@@ -79,19 +130,63 @@
                                     <input class="form-control" name="description" type="text">
                                 </div>
                                 <div class="form-group has-success">
-                                    <button class="btn btn-default" style="position: absolute; cursor: pointer; border-radius: 3px;">FILE UPLOAD</button>
+                                    <button class="btn btn-primary" style="position: absolute; cursor: pointer; border-radius: 3px;">FILE UPLOAD</button>
                                     <input type=file style="opacity: 0; position: relative;" name=image value="FILE UPLOAD">
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="save btn btn-default">Save</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="save btn btn-primary">Save</button>
+                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="pretrained" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">TRAIN</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-dismissible alert-success">
+                                <h1><strong>이미 학습된 모델입니다.</strong></h1>
+                                <li>새로운 LABEL이나 사진을 추가해 보세요.</li>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="trainDone" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">TRAIN</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-dismissible alert-success">
+                                <h1><strong>학습 완료</strong></h1>
+                                <li>지금 바로 테스트 해보세요.</li>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div><!--/.sidebar-offcanvas-->
     </div><!--/row-->
+    <div class="preload"><img src="{% static "project/bluecircle.gif" %}"></div>
 {% endblock %}
 

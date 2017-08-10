@@ -19,6 +19,7 @@ from django.shortcuts import redirect
 from django.conf.urls.static import static
 from django.conf import settings
 
+
 def root(request):
     return redirect('project:list_project')
 
