@@ -56,6 +56,7 @@ def list_project(request):
         if len(image_list) == 0:
             tmp = dict()
             tmp['img'] = None
+            tmp['project'] = project
             result_set.append(tmp)
         else:
             random_int = random.randrange(0, len(image_list))
