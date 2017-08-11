@@ -15,7 +15,7 @@ def signup(request):
         if form.is_valid():
             print("haha")
             user = form.save()
-            return redirect(settings.LOGIN_URL)  # default : accouont/login/
+            return redirect(settings.LOGIN_URL)  # default : accouonts/login/
     else:
         form = UserCreationForm()
     return render(request, 'account/signup_form.html', {'form': form, })
