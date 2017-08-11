@@ -7,7 +7,7 @@ from django.shortcuts import redirect
 
 def post_list(request):
     qs = Post.objects.all()
-
+    print(request.user.is_authenticated)
     q = request.GET.get('q', '')
     if q:
         qs = qs.filter(title__icontains=q)

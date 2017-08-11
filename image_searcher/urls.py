@@ -26,7 +26,7 @@ def root(request):
 urlpatterns = [
     url(r'^$', root, name='root'),
     url(r'^admin/', admin.site.urls),
-    url(r'^account/', include('account.urls', namespace='account')),
+    url(r'^account/', include('account.urls')),
     url(r'^blog/', include('blog.urls', namespace='blog')),
     url(r'^project/', include('project.urls', namespace='project')),
 ]
