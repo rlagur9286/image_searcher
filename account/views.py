@@ -8,7 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 @login_required
 def user_profile(request):
-    return render(request, 'account/profile.html')
+    profile = request.user.profile
+    return render(request, 'account/profile.html', {'profile': profile})
 
 
 @csrf_exempt

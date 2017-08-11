@@ -2,11 +2,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
 from django import forms
 from .models import Profile
+from .validators import phone_number_validator
 
 
 class SignupForm(UserCreationForm):
-    phone_number = forms.CharField(max_length=20)
-    address = forms.CharField(max_length=100)
+    phone_number = forms.CharField(validators=[phone_number_validator], required=True)
+    address = forms.CharField(max_length=30, required=False)
 
     class Meta(UserCreationForm.Meta):
         # fileds = ('username', 'email')

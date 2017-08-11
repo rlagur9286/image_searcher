@@ -1,6 +1,9 @@
 from django.db import models
 from django.core.urlresolvers import reverse
 from django import forms
+from imagekit.models import ProcessedImageField
+from imagekit.models import ImageSpecField
+from imagekit.processors import Thumbnail
 
 
 def min_length_3_validator(value):
@@ -26,7 +29,18 @@ class Post(models.Model):
     ip = models.CharField(max_length=15)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    photo = models.ImageField(blank=True, upload_to='blog/post/%Y/%m/%d')
+    # 원본 이미지와 썸네일 모두 저장
+    # photo = models.ImageField(blank=True, upload_to='blog/post/%Y/%m/%d')
+    # photo_thumbnail = ImageSpecField(
+    #     source='photo',
+    #     processors=[Thumbnail(300, 300)],
+    #     format='JPEG',
+    #     options={'quality': 60})
+    # 원본 이미지는 저장하지 않고 썸네일로 바로 저장
+    photo = ProcessedImageField(blank=True, upload_to='blog/post/%Y/%m/%d',
+                                processors=[Thumbnail(100, 50)],
+                                format='JPEG',
+                                options={'quality': 60})
 
     class Meta:
         ordering = ['-id']
