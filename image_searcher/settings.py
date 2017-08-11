@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'bootstrap3',
     'account',
     'blog',
     'project',
@@ -130,3 +131,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # static 파일들을 모을
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGIN_REDIRECT_URL = '/project/'
