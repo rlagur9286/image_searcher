@@ -1,7 +1,15 @@
-<form action="" method="POST">
-    {% csrf_token %}
-    <table>
-        {{ form.as_table }}
-    </table>
-    <input type="submit"/>
-</form>
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+<div class="container">
+    <div class="raw">
+        <div class="col-md-6 col-md-offset-3">
+            <h1><strong>LOGIN</strong></h1>
+            <form action="" method="POST">
+                {% csrf_token %}
+                {% bootstrap_form form%}
+                <input type="submit" class="btn btn-primary"/>
+            </form>
+        </div>
+    </div>
+</div>

@@ -37,7 +37,9 @@ IV4_vec2list_path = os.path.join(BASE_DIR, 'project/engine/vectors/')
 
 def list_project(request):
     result_set = []
-    project_qs = Project.objects.all()
+    if not request.user.is_authenticated():
+        return render(request, 'project/list_project.html', {'project_list': result_set})
+    project_qs = Project.objects.filter(user=request.user)
     for project in project_qs:
         label = project.label_set.first()
         if label is None:

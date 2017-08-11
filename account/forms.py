@@ -20,7 +20,7 @@ class SignupForm(UserCreationForm):
 
 
 class LoginForm(AuthenticationForm):
-    answer = forms.IntegerField(label='3+3 = ?')
+    answer = forms.IntegerField(label='3+3 = ?(당신은 로봇입니까)')
 
     def clean_answer(self):
         answer = self.cleaned_data.get('answer', None)
