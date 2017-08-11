@@ -216,7 +216,9 @@ def train(request, p_id):
                                     random_scale=args.random_scale, random_brightness=args.random_brightness,
                                     check_point_path=check_point_path, max_ckpts_to_keep=args.max_ckpts_to_keep,
                                     gpu_list=args.gpu_list, validation_percentage=args.validation_percentage)
-        trainer.do_train_with_GPU(gpu_list=['/cpu:0'])
+        res = trainer.do_train_with_GPU(gpu_list=['/cpu:0'])
+        if res is False:
+            return JsonResponse({'success': True, 'result': -1})
         vector_actual_path = trainer.vectorize_with_GPU(gpu_list=['/cpu:0'])
         save_vec2list(vector_actual_path=vector_actual_path)
         project.model = str(project.id) + '_' + str(int(time.mktime(datetime.datetime.now().timetuple())))

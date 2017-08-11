@@ -14,6 +14,32 @@
     </style>
     <script>
         $(document).ready(function(){
+            $( "#submit-btn" ).click(function() {
+                var width = $(document).width();
+                var height = $(document).height();
+                $(".backLayer").width(width);
+                $(".backLayer").height(height);
+                $(".backLayer").show();
+                $(".preload").show();
+                var form = $('form')[0];
+                var formData = new FormData(form);
+                console.log("click");
+                $.ajax("{% url "project:predict" project.id %}", {
+                    method: 'POST',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    complete:function(xhr, settings) {
+                        $('#loading').removeAttr("disabled");
+                    },
+                    success: function (res) {
+                        $( ".preload" ).hide();
+                        console.log(res);
+                    }, error: function (xhr, status, error) {
+                        console.log(xhr);
+                    }
+                });
+            });
             $( "#loading" ).click(function() {
                 $("#loading").text("학습 중")
                 $("#loading").removeClass('btn btn-primary').addClass('btn btn-danger');
@@ -27,8 +53,12 @@
                         $("#loading").text("학습 하기")
                         $("#loading").removeClass('btn btn-danger').addClass('btn btn-primary');
                         console.log(res);
-                        if(res.result == 2) {
+                        if(res.result == 2){
                             $('#pretrained').modal('toggle');
+                            $(".backLayer").hide();
+                        }
+                        else if(res.result == -1){
+                            $('#notEnough').modal('toggle');
                             $(".backLayer").hide();
                         }
                         else{
@@ -123,8 +153,7 @@
                                     <input class="form-control" name="description" type="text">
                                 </div>
                                 <div class="form-group has-success">
-                                    <button class="btn btn-primary" style="position: absolute; cursor: pointer; border-radius: 3px;">FILE UPLOAD</button>
-                                    <input type=file style="opacity: 0; position: relative;" name=image value="FILE UPLOAD">
+                                    <input type=file name=image value="FILE UPLOAD">
                                 </div>
                                 <div class="modal-footer">
                                     <button type="submit" class="save btn btn-primary">Save</button>
@@ -149,6 +178,27 @@
                             <div class="alert alert-dismissible alert-success">
                                 <h1><strong>이미 학습된 모델입니다.</strong></h1>
                                 <li>새로운 LABEL이나 사진을 추가해 보세요.</li>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="notEnough" role="dialog">
+                <div class="modal-dialog">
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">TRAIN</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-dismissible alert-success">
+                                <h1><strong>데이터 부족</strong></h1>
+                                <li>한 개의 LABEL에 10장 이상의 사진을 넣어주세요.</li>
+                                <li>2개 이상의 LABEL을 만들어 주세요.</li>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
