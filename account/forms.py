@@ -6,7 +6,8 @@ from .validators import phone_number_validator
 
 
 class SignupForm(UserCreationForm):
-    phone_number = forms.CharField(validators=[phone_number_validator], required=True)
+    phone_number = forms.CharField(validators=[phone_number_validator], required=True,
+                                   help_text='Enter the phone number without \'-\'.')
     address = forms.CharField(max_length=30, required=False)
 
     class Meta(UserCreationForm.Meta):
