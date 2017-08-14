@@ -20,6 +20,9 @@ class Project(models.Model):
     def __str__(self):
         return self.project_name
 
+    def get_absolute_url(self):
+        return reverse('project:list_label', args=[self.id])
+
 
 class Label(models.Model):
     label_name = models.CharField(max_length=30, validators=[min_length_2_validator])
@@ -35,4 +38,4 @@ class Label(models.Model):
         # ordering = ['-id']   # 내림차순
 
     def get_absolute_url(self):
-        return reverse('project:list_label', args=[self.project_id])
+        return reverse('project:detail_label', args=[self.project_id, self.id])

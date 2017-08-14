@@ -14,34 +14,8 @@
     </style>
     <script>
         $(document).ready(function(){
-            $( "#submit-btn" ).click(function() {
-                var width = $(document).width();
-                var height = $(document).height();
-                $(".backLayer").width(width);
-                $(".backLayer").height(height);
-                $(".backLayer").show();
-                $(".preload").show();
-                var form = $('form')[0];
-                var formData = new FormData(form);
-                console.log("click");
-                $.ajax("{% url "project:predict" project.id %}", {
-                    method: 'POST',
-                    processData: false,
-                    contentType: false,
-                    data: formData,
-                    complete:function(xhr, settings) {
-                        $('#loading').removeAttr("disabled");
-                    },
-                    success: function (res) {
-                        $( ".preload" ).hide();
-                        console.log(res);
-                    }, error: function (xhr, status, error) {
-                        console.log(xhr);
-                    }
-                });
-            });
             $( "#loading" ).click(function() {
-                $("#loading").text("학습 중")
+                $("#loading").text("학습 중");
                 $("#loading").removeClass('btn btn-primary').addClass('btn btn-danger');
                 console.log("click");
                 $.ajax("{% url "project:train" project.id %}", {
@@ -50,7 +24,7 @@
                         $('#loading').attr("disabled", true);
                     },
                     success: function (res) {
-                        $("#loading").text("학습 하기")
+                        $("#loading").text("학습 하기");
                         $("#loading").removeClass('btn btn-danger').addClass('btn btn-primary');
                         console.log(res);
                         if(res.result == 2){
@@ -80,155 +54,143 @@
 
 {% block content %}
     <div class="backLayer" style=""></div>
-    <div class="container">
-        <div class="jumbotron">
-            <h1><strong>IMAGE SEARCH ENGINE</strong> <sup>by KTh</sup></h1>
-            <p>여러분을 대신해서 찾아드리겠습니다.</p>
-            <p>
-                <a class="btn btn-lg btn-primary" href="#">
-                    API 문서 확인하기 &raquo;
-                </a>
-            </p>
+    <div class="row text-center">
+        <div class="col-md-10 push-md-1 mb-3"></div>
+        <div class="col-md-1.5 pull-md-8 mb-3">
+            <button id="loading"  class="btn btn-primary">학습 하기</button>
         </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="alert alert-dismissible alert-danger">
-                    <ul>
-                        <li> <strong>IMAGE SEARCH ENGINE </strong> 만의 보다 차별화된 서비스를 이용해보세요.</li>
-                        <li>누구나 손쉽게 나만의 <strong>Image Search Engine</strong>을 가질 수 있습니다.</li>
-                        <li>개발자가 아니여도 쉽게 서비스 할 수 있습니다.</li>
-                    </ul>
+        <div class="col-lg-1 col-md-6 mb-3">
+            <a href="{% url "project:display_prediction" project.id %}" class="btn btn-primary">추론 하기</a>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card">
+                <img class="card-img-top" src="{% static "project/bin_project.JPG" %}" height=227.5px alt="">
+                <div class="card-body">
+                    <h4 class="card-title">Create Label</h4>
+                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente esse necessitatibus neque.</p>
                 </div>
-                <p>
-                <div class="col-xs-3"></div>
-                <div class="col-xs-3"></div>
-                <div class="col-xs-2"></div>
-                <div class="col-xs-2"></div>
-                <div class="col-xs-1"><button id="loading"  class="btn btn-primary">학습 하기</button></div>
-                <div class="col-xs-1" ><a href="{% url "project:display_prediction" project.id %}" class="btn btn-primary">추론 하기</a></div>
-                </p>
+                <div class="card-footer">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Add Label</button>
+                </div>
             </div>
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-xs-3">
-                        <button type="button" data-toggle="modal" data-target="#myModal"><img src="{% static "project/bin_project.JPG" %}" width="100%" height="280" style = "position: relative;"/></button>
-                        <div class="project-title ng-binding" align="center" style="position: absolute; left: 7%; bottom: 1.5%; color:white; font-size: 34px;
-                        width: 87% ;font-weight: bold;opacity: 1; filter: alpha(opacity=10);background-color: rgba(50, 50, 50, 0.3)">LABEL 추가</div>
-                    </div><!--/.col-xs-3-->
-                    {% for label in label_list %}
-                        <div class="col-xs-3">
-                            <a href="{% url "project:detail_label" l_id=label.id p_id=project.id %}">
-                                {% if label.img %}
-                                    <img src="{{ label.img }}" width="100%" height="300"/>
-                                {% else %}
-                                    <img src="{% static "project/empty.JPG" %}" width="100%" height="300"/>
-                                {% endif %}
-                            </a>
-                            <div class="project-title ng-binding" align="center" style="position: absolute;left: 5%; color:white; bottom: 0;font-size: 34px;
-                            width: 90% ;font-weight: bold;opacity: 1; filter: alpha(opacity=10);background-color: rgba(50, 50, 50, 0.3)">{{ label.label }}</div>
-                        </div><!--/.col-xs-3-->
-                    {% endfor %}
-                </div><!--/row-->
-            </div><!--/.container-fluid-->
+        </div>
+        {% for label in label_list %}
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card">
+                    <a href="{% url "project:detail_label" l_id=label.id p_id=project.id %}">
+                        {% if label.img %}
+                            <img class="card-img-top" src="{{ label.img }}" height=227.5px alt="">
+                        {% else %}
+                            <img class="card-img-top" src="{% static "project/empty.JPG" %}" height=227.5px alt="">
+                        {% endif %}
+                    </a>
+                    <div class="card-body">
+                        <h4 class="card-title">{{ label.label }}</h4>
+                        <p class="card-text">{{ label.description }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url "project:detail_label" l_id=label.id p_id=project.id %}" class="btn btn-primary">Show Image</a>
+                    </div>
+                </div><!--/.card-->
+            </div><!--/.col-lg-3 col-md-6 mb-4-->
+        {% endfor %}
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
 
-            <!-- Modal -->
-            <div class="modal fade" id="myModal" role="dialog">
-                <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">CREATE LABEL</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-dismissible alert-success"><h1><strong>CREATE LABEL</strong></h1></div>
+                    <form method="POST" enctype=multipart/form-data class="post-form" action="{% url "project:create_label" project.id %}">{% csrf_token %}
+                        <div class="form-group has-success">
+                            <label class="control-label" for="inputSuccess">LABEL</label>
+                            <input class="form-control" name="label_name" type="text">
+                        </div>
+                        <div class="form-group has-success">
+                            <label class="control-label" for="inputSuccess">DESCRIPTION(Optional)</label>
+                            <input class="form-control" name="description" type="text">
+                        </div>
+                        <div class="form-group has-success">
+                            <input type=file name=image value="FILE UPLOAD">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="save btn btn-primary">Save</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">CREATE LABEL</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="alert alert-dismissible alert-success"><h1><strong>CREATE LABEL</strong></h1></div>
-                            <form method="POST" enctype=multipart/form-data class="post-form" action="{% url "project:create_label" project.id %}">{% csrf_token %}
-                                <div class="form-group has-success">
-                                    <label class="control-label" for="inputSuccess">LABEL</label>
-                                    <input class="form-control" name="label_name" type="text">
-                                </div>
-                                <div class="form-group has-success">
-                                    <label class="control-label" for="inputSuccess">DESCRIPTION(Optional)</label>
-                                    <input class="form-control" name="description" type="text">
-                                </div>
-                                <div class="form-group has-success">
-                                    <input type=file name=image value="FILE UPLOAD">
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="save btn btn-primary">Save</button>
-                                    <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-                                </div>
-                            </form>
-                        </div>
+    <!-- Modal -->
+    <div class="modal fade" id="pretrained" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">TRAIN</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-dismissible alert-success">
+                        <h1><strong>이미 학습된 모델입니다.</strong></h1>
+                        <li>새로운 LABEL이나 사진을 추가해 보세요.</li>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
-
-            <!-- Modal -->
-            <div class="modal fade" id="pretrained" role="dialog">
-                <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">TRAIN</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="alert alert-dismissible alert-success">
-                                <h1><strong>이미 학습된 모델입니다.</strong></h1>
-                                <li>새로운 LABEL이나 사진을 추가해 보세요.</li>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-                            </div>
-                        </div>
+        </div>
+    </div>
+    <div class="modal fade" id="notEnough" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">TRAIN</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-dismissible alert-success">
+                        <h1><strong>데이터 부족</strong></h1>
+                        <li>한 개의 LABEL에 10장 이상의 사진을 넣어주세요.</li>
+                        <li>2개 이상의 LABEL을 만들어 주세요.</li>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
-            <div class="modal fade" id="notEnough" role="dialog">
-                <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">TRAIN</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="alert alert-dismissible alert-success">
-                                <h1><strong>데이터 부족</strong></h1>
-                                <li>한 개의 LABEL에 10장 이상의 사진을 넣어주세요.</li>
-                                <li>2개 이상의 LABEL을 만들어 주세요.</li>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-                            </div>
-                        </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="trainDone" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">TRAIN</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-dismissible alert-success">
+                        <h1><strong>학습 완료</strong></h1>
+                        <li>지금 바로 테스트 해보세요.</li>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
-            <!-- Modal -->
-            <div class="modal fade" id="trainDone" role="dialog">
-                <div class="modal-dialog">
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            <h4 class="modal-title">TRAIN</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="alert alert-dismissible alert-success">
-                                <h1><strong>학습 완료</strong></h1>
-                                <li>지금 바로 테스트 해보세요.</li>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div><!--/.sidebar-offcanvas-->
-    </div><!--/row-->
+        </div>
+    </div>
 {% endblock %}
 

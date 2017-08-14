@@ -1,15 +1,18 @@
+{% extends "project/layout.html" %}
 {% load bootstrap3 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
-<div class="container">
-    <div class="raw">
-        <div class="col-md-6 col-md-offset-3">
-            <h1><strong>LOGIN</strong></h1>
-            <form action="" method="POST">
-                {% csrf_token %}
-                {% bootstrap_form form%}
-                <input type="submit" class="btn btn-primary"/>
-            </form>
+{% block content %}
+    <div class="container">
+        <div class="row">
+                <div class="col-md-6 col-md-offset-3 mb-4">
+                    <h1><strong>LOGIN</strong></h1>
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        {% bootstrap_form form%}
+                        <input type="submit" class="btn btn-primary"/>
+                    </form>
+                </div>
         </div>
     </div>
-</div>
+{% endblock %}

@@ -130,6 +130,10 @@ def display_prediction(request, p_id):
     return render(request, 'project/display_prediction.html', {'project': project})
 
 
+def display_pretrained_model(request):
+    return render(request, 'project/display_pretrained_model.html')
+
+
 def create_label(request, p_id):
     project = get_object_or_404(Project, id=p_id)
     form = LabelModelForm(request.POST)

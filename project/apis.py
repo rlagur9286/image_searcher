@@ -109,6 +109,7 @@ def search_image(request):
                 products.append(product)
 
             result_set['products'] = products
+            print(result_set)
             return JsonResponse({'success': True, 'result': result_set, 'message': ''})
 
         except Exception as exp:
@@ -239,6 +240,16 @@ def predict(request, p_id):
     try:
         if request.method == 'POST':
             start = timeit.default_timer()
+            file = request.FILES.get('image')
+            if file is None:
+                return render(request, 'project/display_prediction.html', {'project': Project.objects.get(id=p_id)})
+
+            if img_allowed_file(str(file)):
+                img_path = 'media/upload/' + file.name
+                save_file(file=file, img_path=img_path)
+            else:
+                return render(request, 'project/display_prediction.html', {'project': Project.objects.get(id=p_id)})
+
             output_graph = configs.output_graph + str(p_id) + '/output_graph.pb'
             with tf.gfile.FastGFile(os.path.join(output_graph), 'rb') as f:
                 graph = tf.GraphDef()
@@ -250,15 +261,6 @@ def predict(request, p_id):
 
             with open(vec2list_path + str(p_id) + '/vectors_i4_app/vec2list.pickle', 'rb') as f:
                 vector_list = pickle.load(f)
-
-            file = request.FILES.get('image')
-            if file is None:
-                return render(request, 'project/display_prediction.html')
-            if img_allowed_file(str(file)):
-                img_path = 'media/upload/' + file.name
-                save_file(file=file, img_path=img_path)
-            else:
-                return render(request, 'project/display_prediction.html')
 
             # For inception v4
             iv4_img_list = {}
@@ -282,7 +284,55 @@ def predict(request, p_id):
             return render(request, 'project/display_prediction.html', {'images': iv4_images, 'project': Project.objects.get(id=p_id)})
     except Exception as exp:
         logger.exception(exp)
-        return JsonResponse({'result': False, 'reason': 'INTERNAL SERVER ERROR'})
+        return redirect('root')
+
+
+@csrf_exempt
+def pretrained_predict(request):
+    if request.method == 'POST':
+        try:
+            result_set = dict()
+            file = request.FILES.get('image')
+
+            if not file:
+                return JsonResponse({'success': False, 'reason': '파일은 필수 입니다.'})
+            img_path = UPLOAD_FOLDER + file.name
+            if not allowed_file(file.name):
+                return JsonResponse({'success': False, 'reason': '파일은 형식을 확인해주세요'})
+            save_file(file=file, img_path=img_path)
+
+            # For inception v4 Model
+            img_list = {}
+            image = tf.gfile.FastGFile(img_path, 'rb').read()
+            image_vector = iv4_sess.run(iv4_bottleneck, {'DecodeJpeg/contents:0': image})
+            labels = [line.rstrip() for line in tf.gfile.GFile(configs.output_graph + 'output_labels.txt')]
+            prediction = iv4_sess.run(logits, {'DecodeJpeg/contents:0': image})
+            s_label = heapq.nlargest(3, range(len(prediction[0])), prediction[0].__getitem__)
+            s_label = [labels[idx] for idx in s_label]
+            selected_list = [v for v in iv4_vector_list if v[0].split('/')[0].split('\\')[1] in s_label]
+
+            for vec in selected_list:
+                dist = similarity_func(image_vector, vec[1])
+                img_list[vec[0]] = dist
+
+            keys_sorted = heapq.nsmallest(5, img_list, key=img_list.get)
+
+            products = []
+            for result in keys_sorted:
+                product = image_db.retrieve_info_by_PRODUCT_CD(PRODUCT_CD=str('/' + result.replace('\\', '/')).split('/')[-1].split('.jpg')[0])
+                if product is None:
+                    continue
+                products.append(product)
+
+            result_set['products'] = products
+            print(result_set)
+            return render(request, 'project/display_pretrained_model.html', {'result': result_set})
+
+        except Exception as exp:
+            return redirect('root')
+
+    else:
+        return JsonResponse({'success': False, 'message': '이 method는 POST 만 지원합니다.'})
 
 
 def allowed_file(filename):

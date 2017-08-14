@@ -15,16 +15,22 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.shortcuts import redirect
+from django.shortcuts import render
 from django.conf.urls.static import static
 from django.conf import settings
 
 
 def root(request):
-    return redirect('project:list_project')
+    return render(request, 'index.html')
+
+
+def main(request):
+    return render(request, 'main.html')
+
 
 urlpatterns = [
     url(r'^$', root, name='root'),
+    url(r'^main$', main, name='main'),
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/', include('account.urls')),
     url(r'^blog/', include('blog.urls', namespace='blog')),

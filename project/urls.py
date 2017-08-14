@@ -10,10 +10,12 @@ urlpatterns = [     # 순차적으로 검사됨
     url(r'^(?P<p_id>\d+)/(?P<l_id>\d+)/$', views.detail_label, name='detail_label'),
     url(r'^(?P<p_id>\d+)/upload/(?P<l_id>\d+)/$', views.upload_image, name='upload_image'),
     url(r'^(?P<p_id>\d+)/prediction/$', views.display_prediction, name='display_prediction'),
+    url(r'^prediction/$', views.display_pretrained_model, name='display_pretrained_model'),
 
     # For App api
     url(r'^api/(?P<p_id>\d+)/predict/$', apis.predict, name='predict'),
     url(r'^api/(?P<p_id>\d+)/train/$', apis.train, name='train'),
+    url(r'^api/predict/$', apis.pretrained_predict, name='pretrained_predict'),
     url(r'^api/search/$', apis.search_image, name='api_search_image'),
     url(r'^api/upload/$', apis.upload_image, name='api_upload_image'),
     url(r'^api/recommend/$', apis.recommend_product, name='api_recommend_product'),
