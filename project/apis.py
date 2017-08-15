@@ -1,31 +1,28 @@
-import os
-import tensorflow as tf
-import pickle
-import logging
-import heapq
 import datetime
-import time
-import stat
+import heapq
+import logging
+import os
+import pickle
 import shutil
+import stat
+import time
 import timeit
 
-from .models import Project
-from .models import Label
-from .engine.utils.database import ImageManager
-from .engine.utils import configs
-from .engine.utils.ops import get_similarity_func
-
-from image_searcher.settings import BASE_DIR
-
-from project.engine.utils.vector_file_handler import save_vec2list
-from project.engine.Incept_v4_Trainer import Incept_v4_Trainer
-from project.engine.utils.configs import ARGS
-
-from django.views.decorators.csrf import csrf_exempt
+import tensorflow as tf
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+
+from image_searcher.settings.common import BASE_DIR
+from project.engine.Incept_v4_Trainer import Incept_v4_Trainer
+from project.engine.utils.configs import ARGS
+from project.engine.utils.vector_file_handler import save_vec2list
+from .engine.utils import configs
+from .engine.utils.database import ImageManager
+from .engine.utils.ops import get_similarity_func
+from .models import Label
+from .models import Project
 
 logging.basicConfig(
     format="[%(name)s][%(asctime)s] %(message)s",

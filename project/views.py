@@ -1,24 +1,23 @@
+import logging
 import os
 import random
-import logging
-import zipfile
-import tarfile
-import stat
 import shutil
-
-from django.shortcuts import redirect
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404
-
-from .models import Project
-from .forms import ProjectModelForm
-from .forms import LabelModelForm
-from .models import Label
-from image_searcher.settings import BASE_DIR
+import stat
+import tarfile
+import zipfile
 
 from django.contrib import messages
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
+
+from image_searcher.settings.common import BASE_DIR
 from project.engine.utils.configs import ARGS
 from project.engine.utils.ops import get_similarity_func
+from .forms import LabelModelForm
+from .forms import ProjectModelForm
+from .models import Label
+from .models import Project
 
 EXTENSIONS = ['.jpg', '.jpeg', '.JPG', '.JPEG', 'jpg']
 logging.basicConfig(
