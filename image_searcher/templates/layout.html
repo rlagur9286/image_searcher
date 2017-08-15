@@ -54,16 +54,10 @@
 
 <!-- Page Content -->
 <div class="container">
-    <!-- Jumbotron Header -->
-    <header class="jumbotron my-4">
-        <h1 class="display-3">VISUAL INTELIGENCE MADE EASY</h1>
-        <p class="lead">Easily customize your own state-of-the-art computer vision models that fit perfectly with your unique use case.
-            Just bring a few examples of labeled images and let Custom Vision do the hard work.</p>
-        <a href="#" class="btn btn-primary btn-lg">See API Documents</a>
-    </header>
+    {% block jumb %}
+    {% endblock %}
     {% block content %}
     {% endblock %}
-
 </div>
 <!-- /.container -->
 

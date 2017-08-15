@@ -9,6 +9,7 @@ class SignupForm(UserCreationForm):
     phone_number = forms.CharField(validators=[phone_number_validator], required=True,
                                    help_text='Enter the phone number without \'-\'.')
     address = forms.CharField(max_length=30, required=False)
+    photo = forms.ImageField(required=False)
 
     class Meta(UserCreationForm.Meta):
         # fileds = ('username', 'email')
@@ -17,7 +18,8 @@ class SignupForm(UserCreationForm):
     def save(self):
         user = super().save()
         profile = Profile.objects.create(user=user, phone_number=self.cleaned_data.get('phone_number'),
-                                         address=self.cleaned_data.get('address'))
+                                         address=self.cleaned_data.get('address'),
+                                         photo=self.cleaned_data.get('photo'))
         return user
 
 

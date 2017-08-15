@@ -1,4 +1,4 @@
-{% extends "project/layout.html" %}
+{% extends "account/layout.html" %}
 {% load bootstrap3 %}
 {% bootstrap_css %}
 {% bootstrap_javascript %}
@@ -10,7 +10,8 @@
                     <form action="" method="POST">
                         {% csrf_token %}
                         {% bootstrap_form form%}
-                        <input type="submit" class="btn btn-primary"/>
+                        <a href="{% url "signup" %}" class="btn btn-primary">Sign Up</a>
+                        <input type="submit" class="btn btn-primary" value="Log In"/>
                     </form>
                 </div>
         </div>

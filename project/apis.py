@@ -325,7 +325,6 @@ def pretrained_predict(request):
                 products.append(product)
 
             result_set['products'] = products
-            print(result_set)
             return render(request, 'project/display_pretrained_model.html', {'result': result_set})
 
         except Exception as exp:
