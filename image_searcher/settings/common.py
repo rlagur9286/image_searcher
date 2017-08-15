@@ -12,9 +12,10 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 from django.core.urlresolvers import reverse_lazy
+from os.path import dirname, abspath
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = dirname(dirname(dirname(abspath(__file__))))
 
 
 # Quick-start development settings - unsuitable for production
@@ -24,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '2erb+$9cl#kn41%mnp@k_qe)fs&$22+kyyk#jcl#=5tqonp5n*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
