@@ -1,16 +1,22 @@
 import logging
 import os
+import heapq
 import random
 import shutil
 import stat
 import tarfile
+import pickle
 import zipfile
+import tensorflow as tf
 
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.http import JsonResponse
 
+from .engine.utils import configs
+from .engine.utils.database import ImageManager
 from image_searcher.settings.common import BASE_DIR
 from project.engine.utils.configs import ARGS
 from project.engine.utils.ops import get_similarity_func
@@ -27,11 +33,26 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-similarity_func = get_similarity_func()
 ALLOWED_FORMAT = ['zip', 'ZIP', 'tar', 'TAR', 'jpg', 'JPG', 'png', 'PNG', 'jpeg', 'JPEG', 'gif', 'GIF']
 IMG_ALLOWED_FORMAT = ['jpg', 'JPG', 'jpeg', 'JPEG']
+UPLOAD_FOLDER = 'media/upload/'
 args = ARGS()
-IV4_vec2list_path = os.path.join(BASE_DIR, 'project/engine/vectors/')
+IV4_vec2list_path = 'project/engine/vectors/vectors_i4_app/vec2list.pickle'
+vec2list_path = os.path.join(BASE_DIR, 'project/engine/vectors/')
+similarity_func = get_similarity_func()
+
+image_db = ImageManager()
+with tf.gfile.FastGFile(configs.output_graph + 'output_graph.pb', 'rb') as fp:
+    graph_def = tf.GraphDef()
+    graph_def.ParseFromString(fp.read())
+    tf.import_graph_def(graph_def, name='')
+config = tf.ConfigProto(allow_soft_placement=True)
+iv4_sess = tf.Session(config=config)
+iv4_bottleneck = iv4_sess.graph.get_tensor_by_name('input/BottleneckInputPlaceholder:0')
+logits = iv4_sess.graph.get_tensor_by_name('final_result:0')
+
+with open(IV4_vec2list_path, 'rb') as handle:
+    iv4_vector_list = pickle.load(handle)
 
 
 def list_project(request):
@@ -150,8 +171,109 @@ def create_label(request, p_id):
                 return redirect('project:list_label', id=project.id)
             if allowed_file(str(file)):
                 save_file(file=file, label=label.id, project=project.id)
+                project.is_changed = True
+                project.save()
             return redirect('project:list_label', id=project.id)
     return redirect('project:list_label', id=project.id)
+
+
+def search(request, p_id):
+    logger.debug(request)
+    try:
+        if request.method == 'POST':
+            file = request.FILES.get('image')
+            if file is None:
+                return render(request, 'project/display_prediction.html', {'project': Project.objects.get(id=p_id)})
+
+            if img_allowed_file(str(file)):
+                img_path = 'media/upload/' + file.name
+                save_file(file=file)
+            else:
+                return render(request, 'project/display_prediction.html', {'project': Project.objects.get(id=p_id)})
+
+            project = get_object_or_404(Project, id=p_id)
+            if not project.model:
+                return render(request, 'project/display_prediction.html', {'project': Project.objects.get(id=p_id)})
+
+            output_graph = configs.output_graph + str(p_id) + '/output_graph.pb'
+            with tf.gfile.FastGFile(os.path.join(output_graph), 'rb') as f:
+                graph = tf.GraphDef()
+                graph.ParseFromString(f.read())
+                tf.import_graph_def(graph, name='')
+            conf = tf.ConfigProto(allow_soft_placement=True)
+            sess = tf.Session(config=conf)
+            bottleneck = sess.graph.get_tensor_by_name('input/BottleneckInputPlaceholder:0')
+
+            with open(vec2list_path + str(p_id) + '/vectors_i4_app/vec2list.pickle', 'rb') as f:
+                vector_list = pickle.load(f)
+
+            # For inception v4
+            iv4_img_list = {}
+            iv4_image = tf.gfile.FastGFile(img_path, 'rb').read()
+            iv4_image_vector = sess.run(bottleneck, {'DecodeJpeg/contents:0': iv4_image})
+            for vec in vector_list:
+                dist = similarity_func(iv4_image_vector, vec[1])
+                iv4_img_list[vec[0]] = dist
+            iv4_keys_sorted = heapq.nsmallest(5, iv4_img_list, key=iv4_img_list.get)
+            iv4_images = []
+            for result in iv4_keys_sorted:
+                tmp = dict()
+                tmp['distance'] = iv4_img_list.get(result)
+                tmp['img'] = '/' + result.replace('\\', '/')
+                tmp['label'] = Label.objects.all().get(id=int(result.replace('\\', '/').split('/')[-2])).label_name
+                iv4_images.append(tmp)
+
+            print('ICEPTION : ', iv4_images)
+            return render(request, 'project/display_prediction.html', {'images': iv4_images, 'project': Project.objects.get(id=p_id)})
+    except Exception as exp:
+        logger.exception(exp)
+        return redirect('root')
+
+
+def pretrained_predict(request):
+    if request.method == 'POST':
+        try:
+            result_set = dict()
+            file = request.FILES.get('image')
+            if not file:
+                return JsonResponse({'success': False, 'reason': '파일은 필수 입니다.'})
+            img_path = UPLOAD_FOLDER + file.name
+            if not allowed_file(file.name):
+                return JsonResponse({'success': False, 'reason': '파일은 형식을 확인해주세요'})
+            save_file(file=file)
+
+            # For inception v4 Model
+            img_list = {}
+            image = tf.gfile.FastGFile(img_path, 'rb').read()
+            image_vector = iv4_sess.run(iv4_bottleneck, {'DecodeJpeg/contents:0': image})
+            labels = [line.rstrip() for line in tf.gfile.GFile(configs.output_graph + 'output_labels.txt')]
+            prediction = iv4_sess.run(logits, {'DecodeJpeg/contents:0': image})
+            s_label = heapq.nlargest(3, range(len(prediction[0])), prediction[0].__getitem__)
+            s_label = [labels[idx] for idx in s_label]
+            selected_list = [v for v in iv4_vector_list if v[0].split('/')[0].split('\\')[1] in s_label]
+
+            for vec in selected_list:
+                dist = similarity_func(image_vector, vec[1])
+                img_list[vec[0]] = dist
+
+            keys_sorted = heapq.nsmallest(5, img_list, key=img_list.get)
+
+            products = []
+            for result in keys_sorted:
+                product = image_db.retrieve_info_by_PRODUCT_CD(PRODUCT_CD=str('/' + result.replace('\\', '/')).split('/')[-1].split('.jpg')[0])
+                if product is None:
+                    continue
+                products.append(product)
+
+            result_set['products'] = products
+            return render(request, 'project/display_pretrained_model.html', {'result': result_set})
+
+        except Exception as exp:
+            print(exp)
+            return redirect('root')
+
+    else:
+        return JsonResponse({'success': False, 'message': '이 method는 POST 만 지원합니다.'})
 
 
 def upload_image(request, p_id, l_id):
@@ -183,7 +305,7 @@ def img_allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in IMG_ALLOWED_FORMAT
 
 
-def save_file(file, label, project=None):
+def save_file(file, label=None, project=None):
     if label is None:
         filename = file._get_name()
         dir_path = 'media/upload'

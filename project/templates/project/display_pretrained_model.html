@@ -44,7 +44,7 @@
                 var form = $('form')[0];
                 var formData = new FormData(form);
                 console.log("click");
-                $.ajax("{% url "project:pretrained_predict" %}", {
+                $.ajax("{% url "project:pretrained_search" %}", {
                     method: 'POST',
                     data: formData,
                     success: function (res) {
@@ -110,7 +110,7 @@
     <div class="backLayer" style=""></div>
     <div class="container">
         <div class="col-md-6 col-md-6 mb-3">
-            <form action="{% url "project:pretrained_predict" %}" method=post enctype=multipart/form-data>
+            <form action="{% url "project:pretrained_search" %}" method=post enctype=multipart/form-data>
                 {% csrf_token %}
                 <input type=file name=image>
                 <button class="btn btn-primary" id="submit-btn">Upload</button>

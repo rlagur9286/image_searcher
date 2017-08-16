@@ -35,6 +35,7 @@ urlpatterns = [
     url(r'^accounts/', include('account.urls')),
     url(r'^blog/', include('blog.urls', namespace='blog')),
     url(r'^project/', include('project.urls', namespace='project')),
+    url(r'^api/project/', include('project.api_urls', namespace='api_project')),
 ]
 
 # settings.DEBUG 가 False 면 작동 안함

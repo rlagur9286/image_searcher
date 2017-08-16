@@ -6,12 +6,11 @@ import pickle
 import shutil
 import stat
 import time
-import timeit
-
+import json
 import tensorflow as tf
+
 from django.http import JsonResponse
 from django.shortcuts import redirect
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from image_searcher.settings.common import BASE_DIR
@@ -58,6 +57,26 @@ with open(IV4_vec2list_path, 'rb') as handle:
 
 
 @csrf_exempt
+def create_project(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        logger.debug("INPUT %s", data)
+
+        project_name = data.get('project_name')
+        description = data.get('description')
+        user = request.user
+
+        if not project_name:
+            return JsonResponse({'success': False, 'result': None, 'message': 'project_name는 필수 입니다'})
+
+        project = Project.objects.create(project_name=project_name, description=description, user=user)
+        dir_path = 'media/images/%s' % project.id
+        if not os.path.exists(dir_path):
+            os.mkdir(dir_path)
+        return JsonResponse({'success': True, 'result': project, 'message': '새 Project 가 등록되었습니다.'})
+
+
+@csrf_exempt
 def search_image(request):
     if request.method == 'POST':
         try:
@@ -76,10 +95,10 @@ def search_image(request):
             file = request.FILES.get('image')
 
             if not file:
-                return JsonResponse({'success': False, 'reason': '파일은 필수 입니다.'})
+                return JsonResponse({'success': False, 'message': '파일은 필수 입니다.'})
             img_path = image_dir + file.name
             if not allowed_file(file.name):
-                return JsonResponse({'success': False, 'reason': '파일은 형식을 확인해주세요'})
+                return JsonResponse({'success': False, 'message': '파일은 형식을 확인해주세요'})
             save_file(file=file, img_path=img_path)
 
             # For inception v4 Model
@@ -107,7 +126,7 @@ def search_image(request):
 
             result_set['products'] = products
             print(result_set)
-            return JsonResponse({'success': True, 'result': result_set, 'message': ''})
+            return JsonResponse({'success': True, 'result': result_set, 'message': '성공!'})
 
         except Exception as exp:
             return JsonResponse({'success': False, 'message': exp})
@@ -135,10 +154,10 @@ def upload_image(request):
             file = request.FILES.get('image')
 
             if not file:
-                return JsonResponse({'success': False, 'reason': '파일은 필수 입니다.'})
+                return JsonResponse({'success': False, 'message': '파일은 필수 입니다.'})
             img_path = image_dir + file.name
             if not allowed_file(file.name):
-                return JsonResponse({'success': False, 'reason': '파일은 형식을 확인해주세요'})
+                return JsonResponse({'success': False, 'message': '파일은 형식을 확인해주세요'})
             save_file(file=file, img_path=img_path)
 
             return JsonResponse({'success': True, 'message': '성공!'})
@@ -236,16 +255,15 @@ def predict(request, p_id):
     logger.debug(request)
     try:
         if request.method == 'POST':
-            start = timeit.default_timer()
             file = request.FILES.get('image')
             if file is None:
-                return render(request, 'project/display_prediction.html', {'project': Project.objects.get(id=p_id)})
+                return JsonResponse({'success': False, 'result': None, 'message': '파일은 필수 입니다.'})
 
             if img_allowed_file(str(file)):
-                img_path = 'media/upload/' + file.name
+                img_path = 'media/api_upload/' + file.name
                 save_file(file=file, img_path=img_path)
             else:
-                return render(request, 'project/display_prediction.html', {'project': Project.objects.get(id=p_id)})
+                return JsonResponse({'success': False, 'result': None, 'message': '파일은 형식을 확인해주세요'})
 
             output_graph = configs.output_graph + str(p_id) + '/output_graph.pb'
             with tf.gfile.FastGFile(os.path.join(output_graph), 'rb') as f:
@@ -275,10 +293,9 @@ def predict(request, p_id):
                 tmp['label'] = Label.objects.all().get(id=int(result.replace('\\', '/').split('/')[-2])).label_name
                 iv4_images.append(tmp)
 
-            end = timeit.default_timer()
-            print('Time to load : ', end - start)
             print('ICEPTION : ', iv4_images)
-            return render(request, 'project/display_prediction.html', {'images': iv4_images, 'project': Project.objects.get(id=p_id)})
+            return JsonResponse({'success': True, 'result': iv4_images, 'message': '성공'})
+
     except Exception as exp:
         logger.exception(exp)
         return redirect('root')
@@ -292,10 +309,10 @@ def pretrained_predict(request):
             file = request.FILES.get('image')
 
             if not file:
-                return JsonResponse({'success': False, 'reason': '파일은 필수 입니다.'})
+                return JsonResponse({'success': False, 'message': '파일은 필수 입니다.'})
             img_path = UPLOAD_FOLDER + file.name
             if not allowed_file(file.name):
-                return JsonResponse({'success': False, 'reason': '파일은 형식을 확인해주세요'})
+                return JsonResponse({'success': False, 'message': '파일은 형식을 확인해주세요'})
             save_file(file=file, img_path=img_path)
 
             # For inception v4 Model
@@ -322,7 +339,7 @@ def pretrained_predict(request):
                 products.append(product)
 
             result_set['products'] = products
-            return render(request, 'project/display_pretrained_model.html', {'result': result_set})
+            return JsonResponse({'success': True, 'result': result_set, 'message': '성공'})
 
         except Exception as exp:
             return redirect('root')
