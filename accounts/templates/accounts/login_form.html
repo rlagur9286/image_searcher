@@ -18,18 +18,36 @@
         </div>
     </div>
     <ul>
+    <div class="row">
         {% for provider in providers %}
-            <li>
-                {% if provider.social_app %}
+            {% if provider.social_app %}
+                {% if provider.id == 'facebook' %}
+                    <div class="col-md-4">
                     <a href="{% provider_login_url provider.id %}">
-                        {{ provider.name }}
+                        <img src="http://www.tapmad.com/img/fbLogin.png" width="300" height="50"/>
                     </a>
-                {% else %}
-                    <a>
-                        Provider {{ provider.name }} 설정이 필요합니다.
-                    </a>
+                    </div>
                 {% endif %}
-            </li>
+                {% if provider.id == 'kakao' %}
+                    <div class="col-md-4">
+                    <a href="{% provider_login_url provider.id %}">
+                        <img src="http://usefulpa.s3.amazonaws.com/images/2014/kakao_account_login_btn_large_narrow_ov.png" width="300" height="50"/>
+                    </a>
+                    </div>
+                {% endif %}
+                {% if provider.id == 'naver' %}
+                    <div class="col-md-4">
+                    <a href="{% provider_login_url provider.id %}">
+                        <img src="http://www.rawady.co.kr/open/idn/naver_login.png" width="300" height="50"/>
+                    </a>
+                    </div>
+                {% endif %}
+            {% else %}
+                <a>
+                    Provider {{ provider.name }} 설정이 필요합니다.
+                </a>
+            {% endif %}
         {% endfor %}
+    </div>
     </ul>
 {% endblock %}
