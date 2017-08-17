@@ -388,7 +388,7 @@ def train(request, p_id):
     try:
         project = Project.objects.get(id=p_id)
         if not project.is_changed:
-            return JsonResponse({'success': True, 'result': 2})
+            return JsonResponse({'success': True, 'result': 2, 'message': '이미 학습된 모델입니다.'})
         imgage_dir = args.image_dir + '/' + str(p_id)
         vector_path = args.vector_path + '/' + str(p_id)
         if not os.path.exists(vector_path):
@@ -424,7 +424,7 @@ def train(request, p_id):
                                     gpu_list=args.gpu_list, validation_percentage=args.validation_percentage)
         res = trainer.do_train_with_GPU(gpu_list=['/cpu:0'])
         if res is False:
-            return JsonResponse({'success': True, 'result': -1})
+            return JsonResponse({'success': True, 'result': -1, 'message': 'data가 부족합니다.'})
         vector_actual_path = trainer.vectorize_with_GPU(gpu_list=['/cpu:0'])
         save_vec2list(vector_actual_path=vector_actual_path)
         project.model = str(project.id) + '_' + str(int(time.mktime(datetime.datetime.now().timetuple())))
@@ -432,7 +432,7 @@ def train(request, p_id):
         project.save()
         remove_dir_tree(check_point_path)
         remove_dir_tree(summaries_dir)
-        return JsonResponse({'success': True, 'result': 0})
+        return JsonResponse({'success': True, 'result': 0, 'message': '성공!'})
 
     except Exception as exp:
         logger.exception(exp)
@@ -440,7 +440,7 @@ def train(request, p_id):
 
 
 @csrf_exempt
-def predict(request, p_id):
+def search(request, p_id):
     logger.debug(request)
     try:
         if request.method == 'POST':
