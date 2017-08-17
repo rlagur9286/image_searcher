@@ -41,12 +41,21 @@
             <li class="nav-item">
                 <a class="nav-link" href="#services">Services</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#portfolio">Portfolio</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#contact">Contact</a>
-            </li>
+                {% if not user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url "signup" %}">Sign Up</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url "login" %}?next={{ request.path }}">Sign In</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url "profile" %}">{{ user }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url "logout" %}?next={{ request.path }}">Log Out</a>
+                </li>
+            {% endif %}
         </ul>
     </div>
 </nav>

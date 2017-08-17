@@ -100,7 +100,7 @@ def create_project(request):
             dir_path = 'media/images/%s' % project.id
             if not os.path.exists(dir_path):
                 os.mkdir(dir_path)
-    return redirect('root')
+    return redirect('project:list_project')
 
 
 def list_label(request, id):

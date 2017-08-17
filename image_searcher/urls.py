@@ -18,6 +18,22 @@ from django.contrib import admin
 from django.shortcuts import render
 from django.conf.urls.static import static
 from django.conf import settings
+from rest_framework import routers, serializers, viewsets
+from django.contrib.auth.models import User
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('url', 'username', 'email', 'is_staff')
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+router = routers.DefaultRouter()
+router.register(r'users', UserViewSet)
 
 
 def root(request):
@@ -32,10 +48,12 @@ urlpatterns = [
     url(r'^$', root, name='root'),
     url(r'^main$', main, name='main'),
     url(r'^admin/', admin.site.urls),
-    url(r'^accounts/', include('account.urls')),
+    url(r'^accounts/', include('accounts.urls')),
+    url(r'^accounts/', include('allauth.urls')),  # include 시에는 $ 표시 금지
     url(r'^blog/', include('blog.urls', namespace='blog')),
     url(r'^project/', include('project.urls', namespace='project')),
     url(r'^api/project/', include('project.api_urls', namespace='api_project')),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
 
 # settings.DEBUG 가 False 면 작동 안함

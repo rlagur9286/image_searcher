@@ -1,0 +1,35 @@
+{% extends "accounts/layout.html" %}
+{% load socialaccount %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 mb-4">
+                <h1><strong>LOGIN</strong></h1>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {% bootstrap_form form%}
+                    <a href="{% url "signup" %}" class="btn btn-primary">Sign Up</a>
+                    <input type="submit" class="btn btn-primary" value="Log In"/>
+                </form>
+            </div>
+        </div>
+    </div>
+    <ul>
+        {% for provider in providers %}
+            <li>
+                {% if provider.social_app %}
+                    <a href="{% provider_login_url provider.id %}">
+                        {{ provider.name }}
+                    </a>
+                {% else %}
+                    <a>
+                        Provider {{ provider.name }} 설정이 필요합니다.
+                    </a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

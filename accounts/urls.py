@@ -7,9 +7,6 @@ from . import views
 urlpatterns = [     # 순차적으로 검사됨
     url(r'^profile/$', views.user_profile, name='profile'),
     url(r'^signup/$', views.signup, name='signup'),
-    url(r'^login/$', auth_views.login, name='login',
-        kwargs={'template_name': 'account/login_form.html',
-                'authentication_form': LoginForm,
-                }),
+    url(r'^login/$', views.login, name='login'),
     url(r'^logout/$', auth_views.logout, name='logout', kwargs={'next_page': settings.LOGIN_URL}),
 ]

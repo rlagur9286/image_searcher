@@ -33,6 +33,13 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.kakao',
+    'allauth.socialaccount.providers.naver',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,10 +49,20 @@ INSTALLED_APPS = [
     'django_extensions',
     'imagekit',
     'bootstrap3',
-    'account',
+    'rest_framework',
+    'accounts',
     'blog',
     'project',
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend'
+]
+
+SITE_ID = 1
+
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -78,6 +95,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'image_searcher.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAdminUser'
+    ]
+}
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -135,5 +157,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # static 파일들을 모을
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-LOGIN_REDIRECT_URL = reverse_lazy('root')
+LOGIN_REDIRECT_URL = reverse_lazy('project:list_project')
 LOGIN_URL = reverse_lazy('login')
