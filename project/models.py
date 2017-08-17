@@ -25,7 +25,7 @@ class Project(models.Model):
 
 
 class Label(models.Model):
-    label_name = models.CharField(max_length=30, validators=[min_length_2_validator])
+    label_name = models.CharField(max_length=30, validators=[min_length_2_validator], unique=True)
     upload_time = models.DateTimeField(auto_now_add=True)
     description = models.CharField(max_length=100, blank=True)
     project = models.ForeignKey(Project)
