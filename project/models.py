@@ -4,13 +4,13 @@ from django.shortcuts import reverse
 from django import forms
 
 
-def min_length_3_validator(value):
-    if len(value) < 3:
-        raise forms.ValidationError('3글자 이상 입력해주세요')
+def min_length_2_validator(value):
+    if len(value) < 2:
+        raise forms.ValidationError('2글자 이상 입력해주세요')
 
 
 class Project(models.Model):
-    project_name = models.CharField(max_length=30, unique=True, validators=[min_length_3_validator])
+    project_name = models.CharField(max_length=30, unique=True, validators=[min_length_2_validator])
     description = models.CharField(max_length=255, blank=True)
     model = models.CharField(max_length=255, blank=True)
     is_changed = models.BooleanField(default=True)
@@ -20,9 +20,12 @@ class Project(models.Model):
     def __str__(self):
         return self.project_name
 
+    def get_absolute_url(self):
+        return reverse('project:list_label', args=[self.id])
+
 
 class Label(models.Model):
-    label_name = models.CharField(max_length=30, validators=[min_length_3_validator])
+    label_name = models.CharField(max_length=30, validators=[min_length_2_validator], unique=True)
     upload_time = models.DateTimeField(auto_now_add=True)
     description = models.CharField(max_length=100, blank=True)
     project = models.ForeignKey(Project)
@@ -35,4 +38,4 @@ class Label(models.Model):
         # ordering = ['-id']   # 내림차순
 
     def get_absolute_url(self):
-        return reverse('project:list_image', args=[self.id])
+        return reverse('project:detail_label', args=[self.project_id, self.id])

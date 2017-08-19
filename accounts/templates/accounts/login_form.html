@@ -1,0 +1,53 @@
+{% extends "accounts/layout.html" %}
+{% load socialaccount %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 mb-4">
+                <h1><strong>LOGIN</strong></h1>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {% bootstrap_form form%}
+                    <a href="{% url "signup" %}" class="btn btn-primary">Sign Up</a>
+                    <input type="submit" class="btn btn-primary" value="Log In"/>
+                </form>
+            </div>
+        </div>
+    </div>
+    <ul>
+    <div class="row">
+        {% for provider in providers %}
+            {% if provider.social_app %}
+                {% if provider.id == 'facebook' %}
+                    <div class="col-md-4">
+                    <a href="{% provider_login_url provider.id %}">
+                        <img src="http://www.tapmad.com/img/fbLogin.png" width="300" height="50"/>
+                    </a>
+                    </div>
+                {% endif %}
+                {% if provider.id == 'kakao' %}
+                    <div class="col-md-4">
+                    <a href="{% provider_login_url provider.id %}">
+                        <img src="http://usefulpa.s3.amazonaws.com/images/2014/kakao_account_login_btn_large_narrow_ov.png" width="300" height="50"/>
+                    </a>
+                    </div>
+                {% endif %}
+                {% if provider.id == 'naver' %}
+                    <div class="col-md-4">
+                    <a href="{% provider_login_url provider.id %}">
+                        <img src="http://www.rawady.co.kr/open/idn/naver_login.png" width="300" height="50"/>
+                    </a>
+                    </div>
+                {% endif %}
+            {% else %}
+                <a>
+                    Provider {{ provider.name }} 설정이 필요합니다.
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+    </ul>
+{% endblock %}

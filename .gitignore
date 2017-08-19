@@ -8,9 +8,7 @@ blog/migrations/*
 account/migrations/*
 project/migrations/*
 project/engine/*
-project/static/*
 media/*
-!media/__init__.py
 #cache
-D:\PythonProject\image_searcher\image_searcher\__pycache__\*
-D:\PythonProject\image_searcher\.idea/*
+image_searcher/__pycache__\*
+image_searcher/.idea/*

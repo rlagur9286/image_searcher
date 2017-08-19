@@ -1,0 +1,57 @@
+{% extends 'accounts/layout.html' %}
+{% load imagekit %}
+{% load static %}
+{% block content %}
+    {% load bootstrap3 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <div class="container">
+        <div class="raw">
+            <div class="row-md-3">
+                <H1><strong>USER PROFILE</strong></H1>
+
+            </div>
+            <div class="col-md-3">
+                {% if profile.photo %}
+                    {% thumbnail "300x300" profile.photo %}
+                {% else %}
+                    <img src="{% static "thumbnail.jpg" %}" width=300 height=300 class="img-thumbnail"/>
+                {% endif %}
+            </div>
+            <div class="col-md-8 col-md-offset-1">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><strong>USER NAME</strong></h3>
+                    </div>
+                    <div class="panel-body">
+                        <h4>{{ user }}</h4>
+                    </div>
+                </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><strong>PHONE NUMBER</strong></h3>
+                    </div>
+                    <div class="panel-body">
+                        <h4>{{ profile.phone_number }}</h4>
+                    </div>
+                </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><strong>ADDRESS</strong></h3>
+                    </div>
+                    <div class="panel-body">
+                        <h4>{{ profile.address }}</h4>
+                    </div>
+                </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><strong>E-MAIL</strong></h3>
+                    </div>
+                    <div class="panel-body">
+                        <h4>{{ user.email }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
