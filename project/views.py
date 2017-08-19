@@ -264,7 +264,6 @@ def pretrained_predict(request):
                 if product is None:
                     continue
                 products.append(product)
-
             result_set['products'] = products
             return render(request, 'project/display_pretrained_model.html', {'result': result_set})
 

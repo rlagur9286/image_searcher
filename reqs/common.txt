@@ -5,3 +5,4 @@ django-bootstrap3
 pilkit
 django-imagekit
 django-allauth==0.31.0
+pillow

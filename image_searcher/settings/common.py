@@ -79,8 +79,7 @@ ROOT_URLCONF = 'image_searcher.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'image_searcher/templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'image_searcher/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
