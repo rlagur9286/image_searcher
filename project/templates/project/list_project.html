@@ -1,0 +1,72 @@
+{% extends "project/layout.html" %}
+{% load static %}
+{% block content %}
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card">
+                    <img class="card-img-top" src="{% static "project/bin_project.JPG" %}" height=227.5px alt="">
+                    <div class="card-body">
+                        <h4 class="card-title">Create Project</h4>
+                        <p class="card-text">Let's Create Your Image Search Enine Project.</p>
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Create PROJECT</button>
+                    </div>
+                </div>
+            </div><!--/.col-lg-3 col-md-6 mb-4-->
+            {% for project in project_list %}
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card">
+                        <a href="{% url "project:list_label" project.project.id %}">
+                            {% if project.img %}
+                                <img class="card-img-top" src="{{ project.img }}" height=227.5px alt="">
+                            {% else %}
+                                <img class="card-img-top" src="{% static "project/empty.JPG" %}" alt="">
+                            {% endif %}
+                        </a>
+                        <div class="card-body">
+                            <h4 class="card-title">{{ project.project.project_name }}</h4>
+                            <p class="card-text">{{ project.project.description }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url "project:list_label" project.project.id %}" class="btn btn-primary">Let's Get it!</a>
+                        </div>
+                    </div><!--/.card-->
+                </div><!--/.col-lg-3 col-md-6 mb-4-->
+            {% endfor %}
+        </div><!--/row text-center-->
+    </div><!--/container-->
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">CREATE PROJECT</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-dismissible alert-success"><h1><strong>CREATE PROJECT</strong></h1></div>
+                    <form method="POST" enctype=multipart/form-data class="post-form" action="{% url "project:create_project" %}">{% csrf_token %}
+                        <div class="form-group has-success">
+                            <label class="control-label" for="inputSuccess">PROJECT</label>
+                            <input class="form-control" name="project_name" type="text">
+                        </div>
+                        <div class="form-group has-success">
+                            <label class="control-label" for="inputSuccess">DESCRIPTION(Optional)</label>
+                            <input class="form-control" name="description" type="text">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="save btn btn-primary">Save</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+

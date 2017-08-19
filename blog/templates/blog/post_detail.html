@@ -1,0 +1,29 @@
+{% extends "blog/layout.html" %}
+{% load imagekit %}
+{% block title %}
+    {{ post.title }}
+{% endblock %}
+
+{% block content %}
+   {{ post.title }}
+    <h1>{{ post.title }}</h1>
+    {% if post.photo %}
+        <img src="{{ post.photo.url }}" style= "max-width: 100%;"/>
+        {% thumbnail "100x100" post.photo %}
+    {% endif %}
+    <h2>{{ post.content|linebreaks }}</h2>
+    <hr/>
+    <h3>Comment</h3>
+    <ul>
+        {% for comment in post.comment_set.all %}
+            <li>
+            {{ comment.message }}
+            <small>by {{ comment.author }}</small>
+            <small>{{ comment.updated_at }}</small>
+            </li>
+        {% endfor %}
+    </ul>
+    <hr/>
+    <a href="{% url "blog:post_list" %}" class="btn btn-primary">돌아가기</a>
+    <a href="{% url "blog:post_edit" post.id %}" class="btn btn-primary">수 to the 정</a>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+{% block head %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 mb-4">
+                <h1><strong>회원 가입</strong></h1>
+                <form action="" method="POST">
+                    {% csrf_token %}
+                    {% bootstrap_form form%}
+                    <input type="submit" class="btn btn-primary" value="SUBMIT"/>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(function() {
+            $('.form-group label').addClass('col-sm-6');
+            $('.form-group input, .form-group textarea').addClass('form-control');
+        });
+        var dom = document.getElementById('{{ form.user_agent.id_for_label }}');
+        dom.value = navigator.userAgent;
+    </script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
