@@ -1,8 +1,9 @@
 branch-defaults:
   master:
     environment: image
+    group_suffix: null
 global:
-  application_name: image_searcher
+  application_name: image
   branch: null
   default_ec2_keyname: null
   default_platform: Python 3.4
