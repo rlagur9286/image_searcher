@@ -1,14 +1,18 @@
 # Ignore everything in this directory
 .idea/*
 __*
-.idea/
+
 # Except this file
 !.gitignore
 blog/migrations/*
 account/migrations/*
 project/migrations/*
-project/engine/*
-media/*
+project/engine/image_all/*
+project/engine/vectors/*
+project/engine/utils/part.txt
 #cache
-image_searcher/__pycache__\*
-image_searcher/.idea/*
+__pycache__
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

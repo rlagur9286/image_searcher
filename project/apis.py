@@ -60,8 +60,8 @@ iv4_sess = tf.Session(config=config)
 iv4_bottleneck = iv4_sess.graph.get_tensor_by_name('input/BottleneckInputPlaceholder:0')
 logits = iv4_sess.graph.get_tensor_by_name('final_result:0')
 
-with open(IV4_vec2list_path, 'rb') as handle:
-    iv4_vector_list = pickle.load(handle)
+# with open(IV4_vec2list_path, 'rb') as handle:
+#     iv4_vector_list = pickle.load(handle)
 
 
 @csrf_exempt
@@ -294,11 +294,11 @@ def search_image(request):
             prediction = iv4_sess.run(logits, {'DecodeJpeg/contents:0': image})
             s_label = heapq.nlargest(3, range(len(prediction[0])), prediction[0].__getitem__)
             s_label = [labels[idx] for idx in s_label]
-            selected_list = [v for v in iv4_vector_list if v[0].split('/')[0].split('\\')[1] in s_label]
+            # selected_list = [v for v in iv4_vector_list if v[0].split('/')[0].split('\\')[1] in s_label]
 
-            for vec in selected_list:
-                dist = similarity_func(image_vector, vec[1])
-                img_list[vec[0]] = dist
+            # for vec in selected_list:
+            #     dist = similarity_func(image_vector, vec[1])
+            #     img_list[vec[0]] = dist
 
             keys_sorted = heapq.nsmallest(5, img_list, key=img_list.get)
 
