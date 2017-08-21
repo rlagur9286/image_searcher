@@ -7,12 +7,14 @@ __*
 blog/migrations/*
 account/migrations/*
 project/migrations/*
-project/engine/image_all/*
-project/engine/vectors/*
+project/engine/*
+!project/engine/utils
 project/engine/utils/part.txt
 ngrok.exe
 project/engine/Incept_v4_Trainer.py
+media/*
 
+!__init__.py
 #cache
 __pycache__
 

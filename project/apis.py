@@ -46,7 +46,7 @@ ALLOWED_FORMAT = ['zip', 'ZIP', 'tar', 'TAR', 'jpg', 'JPG', 'png', 'PNG', 'jpeg'
 IMG_ALLOWED_FORMAT = ['jpg', 'JPG', 'jpeg', 'JPEG']
 IV4_vec2list_path = 'project/engine/vectors/vectors_i4_app/vec2list.pickle'
 vec2list_path = os.path.join(BASE_DIR, 'project/engine/vectors/')
-UPLOAD_FOLDER = 'media/api_upload/'
+UPLOAD_FOLDER = 'media/upload/'
 if not os.path.isdir(UPLOAD_FOLDER):
     os.mkdir(UPLOAD_FOLDER)
 
@@ -63,8 +63,8 @@ iv4_sess = tf.Session(config=config)
 iv4_bottleneck = iv4_sess.graph.get_tensor_by_name('input/BottleneckInputPlaceholder:0')
 logits = iv4_sess.graph.get_tensor_by_name('final_result:0')
 
-# with open(IV4_vec2list_path, 'rb') as handle:
-#     iv4_vector_list = pickle.load(handle)
+with open(IV4_vec2list_path, 'rb') as handle:
+    iv4_vector_list = pickle.load(handle)
 
 
 @csrf_exempt
@@ -284,10 +284,10 @@ def search_image(request):
 
             if not file:
                 return JsonResponse({'success': False, 'message': '파일은 필수 입니다.'})
-            img_path = image_dir + file.name
+            img_path = image_dir + '/%s/' % datetime.date.today()
             if not allowed_file(file.name):
                 return JsonResponse({'success': False, 'message': '파일은 형식을 확인해주세요'})
-            save_file(file=file, img_path=img_path)
+            img_path = save_file(file=file, img_path=img_path)
 
             # For inception v4 Model
             img_list = {}
@@ -297,11 +297,11 @@ def search_image(request):
             prediction = iv4_sess.run(logits, {'DecodeJpeg/contents:0': image})
             s_label = heapq.nlargest(3, range(len(prediction[0])), prediction[0].__getitem__)
             s_label = [labels[idx] for idx in s_label]
-            # selected_list = [v for v in iv4_vector_list if v[0].split('/')[0].split('\\')[1] in s_label]
+            selected_list = [v for v in iv4_vector_list if v[0].split('/')[0].split('\\')[1] in s_label]
 
-            # for vec in selected_list:
-            #     dist = similarity_func(image_vector, vec[1])
-            #     img_list[vec[0]] = dist
+            for vec in selected_list:
+                dist = similarity_func(image_vector, vec[1])
+                img_list[vec[0]] = dist
 
             keys_sorted = heapq.nsmallest(5, img_list, key=img_list.get)
 
@@ -313,7 +313,7 @@ def search_image(request):
                 products.append(product)
 
             result_set['products'] = products
-            print(result_set)
+            print('RESULT : ', result_set)
             return JsonResponse({'success': True, 'result': result_set, 'message': '성공!'})
 
         except Exception as exp:
@@ -452,8 +452,8 @@ def search(request, p_id):
                 return JsonResponse({'success': False, 'result': None, 'message': '파일은 필수 입니다.'})
 
             if img_allowed_file(str(file)):
-                img_path = 'media/api_upload/' + file.name
-                save_file(file=file, img_path=img_path)
+                img_path = 'media/upload/%s/' % datetime.date.today()
+                img_path = save_file(file=file, img_path=img_path)
             else:
                 return JsonResponse({'success': False, 'result': None, 'message': '파일은 형식을 확인해주세요'})
 
@@ -485,7 +485,7 @@ def search(request, p_id):
                 tmp['label'] = Label.objects.all().get(id=int(result.replace('\\', '/').split('/')[-2])).label_name
                 iv4_images.append(tmp)
 
-            print('ICEPTION : ', iv4_images)
+            print('RESULT : ', iv4_images)
             return JsonResponse({'success': True, 'result': iv4_images, 'message': '성공'})
 
     except Exception as exp:
@@ -499,11 +499,21 @@ def allowed_file(filename):
 
 def save_file(file, label=None, project=None, img_path=None):
     if img_path:
-        fd = open(os.path.join(BASE_DIR, img_path), 'wb')
+        if not os.path.exists(img_path):
+            os.mkdir(img_path)
+        filename = file.name
+        fd = open(os.path.join(img_path, filename), 'wb')
         for chunk in file.chunks():
             fd.write(chunk)
         fd.close()
-        return
+
+        ext = os.path.splitext(filename)[-1]
+        if hangul.findall(filename) is not []:
+            rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
+            os.rename(os.path.join(img_path, filename),
+                      os.path.join(img_path, rename + ext))
+            return os.path.join(img_path, rename + ext)
+        return os.path.join(img_path, filename)
     if label is None:
         filename = file._get_name()
         dir_path = 'media/upload'

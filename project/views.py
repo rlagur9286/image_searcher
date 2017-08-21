@@ -211,7 +211,6 @@ def search(request, p_id):
 
             # For inception v4
             iv4_img_list = {}
-            print(img_path)
             iv4_image = tf.gfile.FastGFile(img_path, 'rb').read()
             iv4_image_vector = sess.run(bottleneck, {'DecodeJpeg/contents:0': iv4_image})
             for vec in vector_list:
