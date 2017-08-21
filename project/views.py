@@ -8,6 +8,7 @@ import tarfile
 import pickle
 import zipfile
 import re
+import datetime
 import tensorflow as tf
 
 from django.contrib import messages
@@ -188,8 +189,8 @@ def search(request, p_id):
                 return render(request, 'project/display_prediction.html', {'project': Project.objects.get(id=p_id)})
 
             if img_allowed_file(str(file)):
-                img_path = 'media/upload/' + file.name
-                img_path = save_file(file=file)
+                img_path = 'media/upload/%s/' % datetime.date.today()
+                img_path = save_file(file=file, img_path=img_path)
             else:
                 return render(request, 'project/display_prediction.html', {'project': Project.objects.get(id=p_id)})
 
@@ -239,10 +240,12 @@ def pretrained_predict(request):
             file = request.FILES.get('image')
             if not file:
                 return JsonResponse({'success': False, 'reason': '파일은 필수 입니다.'})
-            img_path = UPLOAD_FOLDER + file.name
+
             if not allowed_file(file.name):
                 return JsonResponse({'success': False, 'reason': '파일은 형식을 확인해주세요'})
-            save_file(file=file)
+
+            img_path = UPLOAD_FOLDER + '/%s/' % datetime.date.today()
+            img_path = save_file(file=file, img_path=img_path)
 
             # For inception v4 Model
             img_list = {}
@@ -306,7 +309,23 @@ def img_allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in IMG_ALLOWED_FORMAT
 
 
-def save_file(file, label=None, project=None):
+def save_file(file, label=None, project=None, img_path=None):
+    if img_path:
+        if not os.path.exists(img_path):
+            os.mkdir(img_path)
+        filename = file.name
+        fd = open(os.path.join(img_path, filename), 'wb')
+        for chunk in file.chunks():
+            fd.write(chunk)
+        fd.close()
+
+        ext = os.path.splitext(filename)[-1]
+        if hangul.findall(filename) is not []:
+            rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
+            os.rename(os.path.join(img_path, filename),
+                      os.path.join(img_path, rename + ext))
+            return os.path.join(img_path, rename + ext)
+        return os.path.join(img_path, filename)
     if label is None:
         filename = file._get_name()
         dir_path = 'media/upload'
