@@ -7,9 +7,11 @@ import shutil
 import stat
 import time
 import json
+import random
 import tensorflow as tf
 import zipfile
 import tarfile
+import re
 
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -39,6 +41,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 args = ARGS()
 
+hangul = re.compile('[^ ㄱ-ㅣ가-힣0-9]+')
 ALLOWED_FORMAT = ['zip', 'ZIP', 'tar', 'TAR', 'jpg', 'JPG', 'png', 'PNG', 'jpeg', 'JPEG', 'gif', 'GIF']
 IMG_ALLOWED_FORMAT = ['jpg', 'JPG', 'jpeg', 'JPEG']
 IV4_vec2list_path = 'project/engine/vectors/vectors_i4_app/vec2list.pickle'
@@ -520,6 +523,17 @@ def save_file(file, label=None, project=None, img_path=None):
             zip.extractall(dir_path)
             zip.close()
             os.remove(os.path.join(dir_path, filename))
+
+            for filename in os.listdir(dir_path):
+                idx = 0
+                ext = os.path.splitext(filename)[-1]
+                if ext not in ['.jpg', '.jpeg', '.JPEG', '.JPG']:
+                    os.remove(os.path.join(dir_path, filename))
+                if hangul.findall(filename) is not []:
+                    rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
+                    os.rename(os.path.join(BASE_DIR, dir_path + '/' + filename), os.path.join(BASE_DIR, dir_path + '/' + rename + ext))
+                    idx += 1
+
             return True
         except Exception as e:
             print('ZIP error : ', e)
@@ -531,11 +545,28 @@ def save_file(file, label=None, project=None, img_path=None):
             tar.extractall(dir_path)
             tar.close()
             os.remove(os.path.join(dir_path, filename))
+
+            for filename in os.listdir(dir_path):
+                ext = os.path.splitext(filename)[-1]
+                if ext not in ['.jpg', '.jpeg', '.JPEG', '.JPG']:
+                    os.remove(os.path.join(dir_path, filename))
+                if hangul.findall(filename) is not []:
+                    rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
+                    os.rename(os.path.join(BASE_DIR, dir_path + '/' + filename), os.path.join(BASE_DIR, dir_path + '/' + rename + ext))
+
             return True
         except Exception as e:
             print('ZIP error : ', e)
             return False
     else:
+        ext = os.path.splitext(filename)[-1]
+        if ext not in ['.jpg', '.jpeg', '.JPEG', '.JPG']:
+            os.remove(os.path.join(dir_path, filename))
+        if hangul.findall(filename) is not []:
+            rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
+            os.rename(os.path.join(BASE_DIR, dir_path + '/' + filename),
+                      os.path.join(BASE_DIR, dir_path + '/' + rename + ext))
+            return os.path.join(BASE_DIR, dir_path + '/' + rename + ext)
         return os.path.join(dir_path, filename)
 
 

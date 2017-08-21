@@ -7,6 +7,7 @@ import stat
 import tarfile
 import pickle
 import zipfile
+import re
 import tensorflow as tf
 
 from django.contrib import messages
@@ -33,6 +34,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+hangul = re.compile('[^ ㄱ-ㅣ가-힣0-9]+')
 ALLOWED_FORMAT = ['zip', 'ZIP', 'tar', 'TAR', 'jpg', 'JPG', 'png', 'PNG', 'jpeg', 'JPEG', 'gif', 'GIF']
 IMG_ALLOWED_FORMAT = ['jpg', 'JPG', 'jpeg', 'JPEG']
 UPLOAD_FOLDER = 'media/upload/'
@@ -187,7 +189,7 @@ def search(request, p_id):
 
             if img_allowed_file(str(file)):
                 img_path = 'media/upload/' + file.name
-                save_file(file=file)
+                img_path = save_file(file=file)
             else:
                 return render(request, 'project/display_prediction.html', {'project': Project.objects.get(id=p_id)})
 
@@ -209,6 +211,7 @@ def search(request, p_id):
 
             # For inception v4
             iv4_img_list = {}
+            print(img_path)
             iv4_image = tf.gfile.FastGFile(img_path, 'rb').read()
             iv4_image_vector = sess.run(bottleneck, {'DecodeJpeg/contents:0': iv4_image})
             for vec in vector_list:
@@ -324,6 +327,17 @@ def save_file(file, label=None, project=None):
             zip.extractall(dir_path)
             zip.close()
             os.remove(os.path.join(dir_path, filename))
+
+            for filename in os.listdir(dir_path):
+                idx = 0
+                ext = os.path.splitext(filename)[-1]
+                if ext not in ['.jpg', '.jpeg', '.JPEG', '.JPG']:
+                    os.remove(os.path.join(dir_path, filename))
+                if hangul.findall(filename) is not []:
+                    rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
+                    os.rename(os.path.join(BASE_DIR, dir_path + '/' + filename), os.path.join(BASE_DIR, dir_path + '/' + rename + ext))
+                    idx += 1
+
             return True
         except Exception as e:
             print('ZIP error : ', e)
@@ -335,11 +349,30 @@ def save_file(file, label=None, project=None):
             tar.extractall(dir_path)
             tar.close()
             os.remove(os.path.join(dir_path, filename))
+
+            for filename in os.listdir(dir_path):
+                idx = 0
+                ext = os.path.splitext(filename)[-1]
+                if ext not in ['.jpg', '.jpeg', '.JPEG', '.JPG']:
+                    os.remove(os.path.join(dir_path, filename))
+                if hangul.findall(filename) is not []:
+                    rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
+                    os.rename(os.path.join(BASE_DIR, dir_path + '/' + filename), os.path.join(BASE_DIR, dir_path + '/' + rename + ext))
+                    idx += 1
+
             return True
         except Exception as e:
             print('ZIP error : ', e)
             return False
     else:
+        ext = os.path.splitext(filename)[-1]
+        if ext not in ['.jpg', '.jpeg', '.JPEG', '.JPG']:
+            os.remove(os.path.join(dir_path, filename))
+        if hangul.findall(filename) is not []:
+            rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
+            os.rename(os.path.join(BASE_DIR, dir_path + '/' + filename),
+                      os.path.join(BASE_DIR, dir_path + '/' + rename + ext))
+            return os.path.join(BASE_DIR, dir_path + '/' + rename + ext)
         return os.path.join(dir_path, filename)
 
 

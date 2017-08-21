@@ -29,8 +29,8 @@ class ARGS(object):
         self.summaries_dir = 'project/engine/tmp/retrain_logs'
         self.how_many_training_steps = 100
         self.learning_rate = 0.01
-        self.testing_percentage = 10
-        self.validation_percentage = 10
+        self.testing_percentage = 20
+        self.validation_percentage = 20
         self.eval_step_interval = 25
         self.train_batch_size = 32
         self.test_batch_size = -1

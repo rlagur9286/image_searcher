@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 from django.core.urlresolvers import reverse_lazy
 from os.path import dirname, abspath
+import pymysql
+pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = dirname(dirname(dirname(abspath(__file__))))
@@ -47,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'storages',
     'imagekit',
     'bootstrap3',
     'rest_framework',
@@ -105,9 +108,13 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': 'localhost',
+        'USER': 'root',
+        'PASSWORD': 1234,
+        'NAME': 'image_search_engine_db',
+        'PORT': 3306,
+    },
 }
 
 
@@ -158,3 +165,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 LOGIN_REDIRECT_URL = reverse_lazy('project:list_project')
 LOGIN_URL = reverse_lazy('login')
+
+# 기본 static/media 저장소를 django-storages로 변경
+STATICFILES_STORAGE = 'image_searcher.storages.StaticS3Boto3Storage'
+DEFAULT_FILE_STORAGE = 'image_searcher.storages.MediaS3Boto3Storage'
+AWS_ACCESS_KEY_ID = 'AKIAJG4H25TROYORQ3DA'
+AWS_SECRET_ACCESS_KEY = "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"
+AWS_STORAGE_BUCKET_NAME = "imagesearchengine"
+AWS_S3_REGION_NAME = 'ap-northeast-2'

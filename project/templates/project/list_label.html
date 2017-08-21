@@ -85,8 +85,8 @@
                         {% endif %}
                     </a>
                     <div class="card-body">
-                        <h4 class="card-title">{{ label.label }}</h4>
-                        <p class="card-text">{{ label.description }}</p>
+                        <h4 class="card-title"><strong>{{ label.label }}</strong></h4>
+                        <p class="card-text">{{ label.des }}</p>
                     </div>
                     <div class="card-footer">
                         <a href="{% url "project:detail_label" l_id=label.id p_id=project.id %}" class="btn btn-primary">Show Image</a>

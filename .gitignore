@@ -10,8 +10,12 @@ project/migrations/*
 project/engine/image_all/*
 project/engine/vectors/*
 project/engine/utils/part.txt
+ngrok.exe
+project/engine/Incept_v4_Trainer.py
+
 #cache
-__pycache__
+__pycache__
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
