@@ -14,7 +14,7 @@ class Project(models.Model):
     description = models.CharField(max_length=255, blank=True)
     model = models.CharField(max_length=255, blank=True)
     is_changed = models.BooleanField(default=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -28,7 +28,7 @@ class Label(models.Model):
     label_name = models.CharField(max_length=30, validators=[min_length_2_validator], unique=True)
     upload_time = models.DateTimeField(auto_now_add=True)
     description = models.CharField(max_length=100, blank=True)
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.label_name
