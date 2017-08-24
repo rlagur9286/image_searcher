@@ -1,10 +1,11 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
+from django.shortcuts import render
 
 from .serializers import PostSerializer
 from .models import Post
-
+from .models import Comment
 
 @api_view(['GET', 'POST'])
 def post_list(request):
@@ -42,6 +43,11 @@ def post_detail(request, id):
     elif request.method == 'DELETE':
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def comment_list(request):
+    comment_list = Comment.objects.all()
+    return render(request, 'blog/comment_list.html', {'comment_list': comment_list})
 
 
 # def post_list(request):

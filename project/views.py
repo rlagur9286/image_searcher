@@ -19,7 +19,7 @@ from django.http import JsonResponse
 
 from .engine.utils import configs
 from .engine.utils.database import ImageManager
-from image_searcher.settings.common import BASE_DIR
+from image_searcher.settings import BASE_DIR
 from project.engine.utils.configs import ARGS
 from project.engine.utils.ops import get_similarity_func
 from .forms import LabelModelForm

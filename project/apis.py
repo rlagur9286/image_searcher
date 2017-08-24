@@ -20,7 +20,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from rest_framework.renderers import JSONRenderer
 
-from image_searcher.settings.common import BASE_DIR
+from image_searcher.settings import BASE_DIR
 from project.engine.Incept_v4_Trainer import Incept_v4_Trainer
 from project.engine.utils.configs import ARGS
 from project.engine.utils.vector_file_handler import save_vec2list
