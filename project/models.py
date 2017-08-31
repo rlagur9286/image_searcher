@@ -39,3 +39,19 @@ class Label(models.Model):
 
     def get_absolute_url(self):
         return reverse('project:detail_label', args=[self.project_id, self.id])
+
+
+class Product(models.Model):
+    PRODUCT_CD = models.CharField(max_length=255, unique=True)
+    GOODS_NAME = models.CharField(max_length=255, blank=True)
+    GOODS_IMAGE_URL = models.CharField(max_length=255, blank=True)
+    BRAND = models.CharField(max_length=255, blank=True)
+    MODEL = models.CharField(max_length=255, blank=True)
+    CATEGORY = models.CharField(max_length=255, blank=True)
+    PRICE = models.FloatField(blank=False)
+
+    def __str__(self):
+        return self.PRODUCT_CD
+
+    class Meta:
+        ordering = ['id']   # 오름차순

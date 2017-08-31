@@ -29,6 +29,7 @@ from .engine.utils.database import ImageManager
 from .engine.utils.ops import get_similarity_func
 from .models import Label
 from .models import Project
+from .models import Product
 from .serializers import ProjectSerializer
 from .serializers import LabelSerializer
 from .forms import LabelModelForm
@@ -307,7 +308,8 @@ def search_image(request):
 
             products = []
             for result in keys_sorted:
-                product = image_db.retrieve_info_by_PRODUCT_CD(PRODUCT_CD=str('/' + result.replace('\\', '/')).split('/')[-1].split('.jpg')[0])
+                product = get_items(product_id=str('/' + result.replace('\\', '/')).split('/')[-1].split('.jpg')[0])
+                # product = image_db.retrieve_info_by_PRODUCT_CD(PRODUCT_CD=str('/' + result.replace('\\', '/')).split('/')[-1].split('.jpg')[0])
                 if product is None:
                     continue
                 products.append(product)
@@ -601,3 +603,20 @@ class JSONResponse(HttpResponse):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'
         super(JSONResponse, self).__init__(content, **kwargs)
+
+
+def get_items(product_id):
+    product = {}
+    try:
+        result = Product.objects.get(PRODUCT_CD=product_id)
+    except Exception as e:
+        print(e, product_id)
+        return None
+    product['PRODUCT_CD'] = result.PRODUCT_CD
+    product['GOODS_NAME'] = result.GOODS_NAME
+    product['GOODS_IMAGE_URL'] = result.GOODS_IMAGE_URL
+    product['BRAND'] = result.BRAND
+    product['MODEL'] = result.MODEL
+    product['CATEGORY'] = result.CATEGORY
+    product['PRICE'] = result.PRICE
+    return product
