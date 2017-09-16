@@ -12,6 +12,7 @@ import tensorflow as tf
 import zipfile
 import tarfile
 import re
+from urllib import request as req
 
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -24,6 +25,7 @@ from image_searcher.settings import BASE_DIR
 from project.engine.Incept_v4_Trainer import Incept_v4_Trainer
 from project.engine.utils.configs import ARGS
 from project.engine.utils.vector_file_handler import save_vec2list
+from accounts.models import Profile
 from .engine.utils import configs
 from .engine.utils.database import ImageManager
 from .engine.utils.ops import get_similarity_func
@@ -32,7 +34,6 @@ from .models import Project
 from .models import Product
 from .serializers import ProjectSerializer
 from .serializers import LabelSerializer
-from .forms import LabelModelForm
 
 logging.basicConfig(
     format="[%(name)s][%(asctime)s] %(message)s",
@@ -55,6 +56,7 @@ similarity_func = get_similarity_func()
 
 image_db = ImageManager()
 info_all = image_db.retrieve_info_all()
+
 with tf.gfile.FastGFile(configs.output_graph + 'output_graph.pb', 'rb') as fp:
     graph_def = tf.GraphDef()
     graph_def.ParseFromString(fp.read())
@@ -118,7 +120,9 @@ def retrieve_project(request):
         try:
             user = User.objects.get(username=user_id)
         except Exception as e:
-            return JSONResponse({'success': False, 'result': 'user_id를 확인 해주세요', 'message': str(e)})
+            user = User.objects.create_user(username=user_id, password='12341234')
+            profile = Profile.objects.create(user=user)
+            # return JSONResponse({'success': False, 'result': 'user_id를 확인 해주세요', 'message': str(e)})
 
         if not p_id:
             projects = Project.objects.filter(user=user)
@@ -187,6 +191,10 @@ def create_label(request, p_id):
             return JsonResponse({'success': False, 'result': None, 'message': str(e)})
         try:
             file = request.FILES.get('image')
+            label_names = project.label_set.all()
+            label_list = [label.label_name for label in label_names]
+            if label_name in label_list:
+                return JsonResponse({'success': False, 'result': None, 'message': '같은 프로젝트 내 label 중복 불가능'})
             label = Label.objects.create(label_name=label_name, project=project, description=description)
             if file:
                 if allowed_file(str(file)):
@@ -283,12 +291,19 @@ def search_image(request):
                 image_dir = UPLOAD_FOLDER
             file = request.FILES.get('image')
 
-            if not file:
-                return JsonResponse({'success': False, 'message': '파일은 필수 입니다.'})
             img_path = image_dir + '/%s/' % datetime.date.today()
-            if not allowed_file(file.name):
-                return JsonResponse({'success': False, 'message': '파일은 형식을 확인해주세요'})
-            img_path = save_file(file=file, img_path=img_path)
+
+            if not file:
+                img_url = request.POST.get('img_url')
+                if not os.path.exists(img_path):
+                    os.mkdir(img_path)
+                req.urlretrieve(img_url, os.path.join(img_path, 'tmp.jpg'))
+                img_path = os.path.join(img_path, 'tmp.jpg')
+                # return JsonResponse({'success': False, 'message': '파일은 필수 입니다.'})
+            else:
+                if not allowed_file(file.name):
+                    return JsonResponse({'success': False, 'message': '파일은 형식을 확인해주세요'})
+                img_path = save_file(file=file, img_path=img_path)
 
             # For inception v4 Model
             img_list = {}
@@ -308,8 +323,8 @@ def search_image(request):
 
             products = []
             for result in keys_sorted:
-                product = get_items(product_id=str('/' + result.replace('\\', '/')).split('/')[-1].split('.jpg')[0])
                 # product = image_db.retrieve_info_by_PRODUCT_CD(PRODUCT_CD=str('/' + result.replace('\\', '/')).split('/')[-1].split('.jpg')[0])
+                product = get_items(product_id=str('/' + result.replace('\\', '/')).split('/')[-1].split('.jpg')[0])
                 if product is None:
                     continue
                 products.append(product)
@@ -441,7 +456,7 @@ def train(request, p_id):
 
     except Exception as exp:
         logger.exception(exp)
-        return redirect('root')
+        return JsonResponse({'success': False, 'result': exp, 'message': ''})
 
 
 @csrf_exempt
@@ -532,23 +547,29 @@ def save_file(file, label=None, project=None, img_path=None):
     if 'zip' in filename or 'ZIP' in filename:
         try:
             zip = zipfile.ZipFile(os.path.join(dir_path, filename))
-            zip.extractall(dir_path)
+            for idx, file in enumerate(zip.filelist):
+                if file.filename.endswith('/'):
+                    continue
+                file_name = file.filename
+                if '__MACOSX' in file_name or file_name == filename:
+                    print('passed')
+                    continue
+                file.filename = str(idx) + '.jpg'
+                file_name = file.filename
+                zip.extract(file, os.path.join(BASE_DIR, dir_path))
+                ext = os.path.splitext(file_name)[-1]
+                if ext not in ['.jpg', '.jpeg', '.JPEG', '.JPG']:
+                    os.remove(os.path.join(dir_path, file_name))
+                if hangul.findall(file_name) is not []:
+                    rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(file_name)[0]) + str(
+                        random.randint(0, 10000000))
+                    os.rename(os.path.join(BASE_DIR, dir_path + '/' + file_name),
+                              os.path.join(BASE_DIR, dir_path + '/' + rename + ext))
             zip.close()
             os.remove(os.path.join(dir_path, filename))
-
-            for filename in os.listdir(dir_path):
-                idx = 0
-                ext = os.path.splitext(filename)[-1]
-                if ext not in ['.jpg', '.jpeg', '.JPEG', '.JPG']:
-                    os.remove(os.path.join(dir_path, filename))
-                if hangul.findall(filename) is not []:
-                    rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
-                    os.rename(os.path.join(BASE_DIR, dir_path + '/' + filename), os.path.join(BASE_DIR, dir_path + '/' + rename + ext))
-                    idx += 1
-
             return True
         except Exception as e:
-            print('ZIP error : ', e)
+            print('ZIP ERROR : ', e)
             return False
 
     elif 'tar' in filename or 'TAR' in filename:

@@ -320,12 +320,9 @@ def save_file(file, label=None, project=None, img_path=None):
         fd.close()
 
         ext = os.path.splitext(filename)[-1]
-        if hangul.findall(filename) is not []:
-            rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
-            os.rename(os.path.join(img_path, filename),
-                      os.path.join(img_path, rename + ext))
-            return os.path.join(img_path, rename + ext)
-        return os.path.join(img_path, filename)
+        rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
+        os.rename(os.path.join(img_path, filename), os.path.join(img_path, rename + ext))
+        return os.path.join(img_path, rename + ext)
     if label is None:
         filename = file._get_name()
         dir_path = 'media/upload'
@@ -340,26 +337,28 @@ def save_file(file, label=None, project=None, img_path=None):
     fd.close()
 
     if 'zip' in filename or 'ZIP' in filename:
-        try:
-            zip = zipfile.ZipFile(os.path.join(dir_path, filename))
-            zip.extractall(dir_path)
-            zip.close()
-            os.remove(os.path.join(dir_path, filename))
-
-            for filename in os.listdir(dir_path):
-                idx = 0
-                ext = os.path.splitext(filename)[-1]
-                if ext not in ['.jpg', '.jpeg', '.JPEG', '.JPG']:
-                    os.remove(os.path.join(dir_path, filename))
-                if hangul.findall(filename) is not []:
-                    rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(filename)[0]) + str(random.randint(0, 10000000))
-                    os.rename(os.path.join(BASE_DIR, dir_path + '/' + filename), os.path.join(BASE_DIR, dir_path + '/' + rename + ext))
-                    idx += 1
-
-            return True
-        except Exception as e:
-            print('ZIP error : ', e)
-            return False
+        zip = zipfile.ZipFile(os.path.join(dir_path, filename))
+        for idx, file in enumerate(zip.filelist):
+            if file.filename.endswith('/'):
+                continue
+            file_name = file.filename
+            if '__MACOSX' in file_name or file_name == filename:
+                print('passed')
+                continue
+            file.filename = str(idx) + '.jpg'
+            file_name = file.filename
+            zip.extract(file, os.path.join(BASE_DIR, dir_path))
+            ext = os.path.splitext(file_name)[-1]
+            if ext not in ['.jpg', '.jpeg', '.JPEG', '.JPG']:
+                os.remove(os.path.join(dir_path, file_name))
+            if hangul.findall(file_name) is not []:
+                rename = re.sub('[^0-9a-zA-Z]', '', os.path.splitext(file_name)[0]) + str(
+                    random.randint(0, 10000000))
+                os.rename(os.path.join(BASE_DIR, dir_path + '/' + file_name),
+                          os.path.join(BASE_DIR, dir_path + '/' + rename + ext))
+        zip.close()
+        os.remove(os.path.join(dir_path, filename))
+        return True
 
     elif 'tar' in filename or 'TAR' in filename:
         try:
