@@ -22,3 +22,7 @@
 ○ 개발자
 
 - rlagur9286@naver.com -김혁
+
+○ 발표자료
+
+- https://drive.google.com/open?id=0B0IvRSRS6pSIMVlTNVR4MDlNbGM
